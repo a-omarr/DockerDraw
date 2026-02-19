@@ -57,8 +57,12 @@ export function ConfigPanel() {
             {/* Panel header */}
             <div className="flex items-center justify-between px-6 py-4 border-b h-14 bg-background/50 backdrop-blur-sm sticky top-0 z-20">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-lg">
-                        {template?.emoji || '📦'}
+                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-lg shrink-0">
+                        {template?.Icon ? (
+                            <template.Icon size={18} style={{ color: template.color }} />
+                        ) : (
+                            template?.emoji || '📦'
+                        )}
                     </div>
                     <div>
                         <p className="text-sm font-bold leading-none">{service.name}</p>
@@ -535,40 +539,52 @@ function DependsOnSelector({
 
     if (otherServices.length === 0) {
         return (
-            <div className="p-4 rounded-lg border border-dashed text-center">
-                <p className="text-xs text-muted-foreground">
-                    Add more services to configure dependencies.
-                </p>
+            <div className="p-8 rounded-xl border border-dashed border-muted-foreground/20 bg-muted/5 flex flex-col items-center justify-center text-center space-y-3">
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                    <Link size={18} className="text-muted-foreground/40" />
+                </div>
+                <div className="space-y-1">
+                    <p className="text-[11px] font-bold text-foreground/80 uppercase tracking-tight">No other services</p>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed max-w-[180px]">
+                        Add more services to the canvas to configure inter-service dependencies.
+                    </p>
+                </div>
             </div>
         );
     }
 
-    const toggleDep = (name: string) => {
+    const toggleDep = (id: string) => {
         const current = service.dependsOn;
-        if (current.includes(name)) {
-            onUpdate(service.id, { dependsOn: current.filter((d) => d !== name) });
+        if (current.includes(id)) {
+            onUpdate(service.id, { dependsOn: current.filter((d) => d !== id) });
         } else {
-            onUpdate(service.id, { dependsOn: [...current, name] });
+            onUpdate(service.id, { dependsOn: [...current, id] });
         }
     };
 
     return (
         <div className="flex flex-wrap gap-2">
             {otherServices.map((s) => {
-                const isSelected = service.dependsOn.includes(s.name);
+                const isSelected = service.dependsOn.includes(s.id);
                 const t = serviceTemplates.find((t) => t.id === s.templateId);
                 return (
                     <Button
                         key={s.id}
                         variant={isSelected ? "default" : "outline"}
                         size="sm"
-                        onClick={() => toggleDep(s.name)}
+                        onClick={() => toggleDep(s.id)}
                         className={cn(
                             "h-8 gap-2 px-3 text-xs font-medium rounded-full",
                             !isSelected && "bg-muted/10 hover:bg-muted/30"
                         )}
                     >
-                        <span className="text-sm scale-110">{t?.emoji || '📦'}</span>
+                        <span className="flex items-center justify-center shrink-0">
+                            {t?.Icon ? (
+                                <t.Icon size={14} style={{ color: t.color }} />
+                            ) : (
+                                <span className="text-sm scale-110">{t?.emoji || '📦'}</span>
+                            )}
+                        </span>
                         {s.name}
                     </Button>
                 );

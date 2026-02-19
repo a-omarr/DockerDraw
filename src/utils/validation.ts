@@ -71,6 +71,33 @@ export function validateServices(services: Service[]): ValidationWarning[] {
                 action: 'Add a volume to persist data',
             });
         }
+
+        // Circular Dependency Check
+        const checkCircular = (currentId: string, path: string[] = []): string[] | null => {
+            if (path.includes(currentId)) {
+                return [...path, currentId];
+            }
+            const currentService = services.find(s => s.id === currentId);
+            if (!currentService) return null;
+
+            for (const depId of currentService.dependsOn) {
+                const cycle = checkCircular(depId, [...path, currentId]);
+                if (cycle) return cycle;
+            }
+            return null;
+        };
+
+        const cycle = checkCircular(service.id);
+        if (cycle) {
+            const cycleNames = cycle.map(id => services.find(s => s.id === id)?.name || id).join(' -> ');
+            warnings.push({
+                id: `circular-dep-${service.id}`,
+                type: 'error',
+                serviceId: service.id,
+                message: `Circular dependency detected: ${cycleNames}`,
+                action: 'Remove one of the dependencies to break the loop',
+            });
+        }
     });
 
     // Tips

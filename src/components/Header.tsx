@@ -6,9 +6,13 @@ import {
     FolderOpen,
     LayoutTemplate,
     Download,
-    Settings2,
     ChevronDown,
 } from 'lucide-react';
+import {
+    SiDocker,
+    SiOpencontainersinitiative,
+    SiVite
+} from 'react-icons/si';
 import { useAppStore } from '../store/useAppStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -86,7 +90,8 @@ export function Header() {
                             onClick={() => { setTempName(projectName); setEditingName(true); }}
                             title="Click to rename project"
                         >
-                            📁 {projectName}
+                            <SiOpencontainersinitiative size={14} className="mr-2 text-primary/70" />
+                            {projectName}
                         </Button>
                     )}
                 </div>
@@ -105,7 +110,11 @@ export function Header() {
                                 : 'border-orange-200 bg-orange-50/50 text-orange-700 hover:bg-orange-50 hover:text-orange-800'
                                 }`}
                         >
-                            <Settings2 size={14} />
+                            {environmentPreset === 'development' ? (
+                                <SiVite size={14} className="text-emerald-600" />
+                            ) : (
+                                <SiDocker size={14} className="text-orange-600" />
+                            )}
                             {environmentPreset === 'development' ? 'Development' : 'Production'}
                             <ChevronDown size={12} className="opacity-50" />
                         </Button>
@@ -118,7 +127,11 @@ export function Header() {
                                 className="flex flex-col items-start gap-0.5"
                             >
                                 <div className="flex items-center gap-2 font-medium capitalize">
-                                    <span>{preset === 'development' ? '⚙' : '🚀'}</span>
+                                    {preset === 'development' ? (
+                                        <SiVite size={12} className="text-emerald-600" />
+                                    ) : (
+                                        <SiDocker size={12} className="text-orange-600" />
+                                    )}
                                     {preset}
                                 </div>
                                 <span className="text-[10px] text-muted-foreground">

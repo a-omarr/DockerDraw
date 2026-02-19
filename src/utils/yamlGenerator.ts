@@ -59,7 +59,16 @@ export function generateDockerCompose(
         }
 
         if (service.dependsOn.length > 0) {
-            entry.depends_on = service.dependsOn;
+            entry.depends_on = service.dependsOn
+                .map((id) => {
+                    const depService = services.find((s) => s.id === id);
+                    if (depService) return depService.name;
+                    // Fallback for names if they are already in the array (backward compatibility)
+                    const existsByName = services.find((s) => s.name === id);
+                    if (existsByName) return id;
+                    return null;
+                })
+                .filter(Boolean) as string[];
         }
 
         if (service.command) {

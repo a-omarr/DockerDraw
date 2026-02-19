@@ -37,7 +37,7 @@ export function TemplateGallery() {
 
     return (
         <Dialog open={showTemplateGallery} onOpenChange={setShowTemplateGallery}>
-            <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
+            <DialogContent className="max-w-3xl h-[80vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
                 <DialogHeader className="px-6 py-4 border-b bg-muted/20">
                     <DialogTitle className="text-xl font-bold tracking-tight">Template Gallery</DialogTitle>
                     <DialogDescription className="text-xs">

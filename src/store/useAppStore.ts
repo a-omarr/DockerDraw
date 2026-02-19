@@ -156,10 +156,7 @@ export const useAppStore = create<AppState>()(
                         .filter((s) => s.id !== id)
                         .map((s) => ({
                             ...s,
-                            dependsOn: s.dependsOn.filter((dep) => {
-                                const depService = state.services.find((sv) => sv.id === id);
-                                return dep !== depService?.name;
-                            }),
+                            dependsOn: s.dependsOn.filter((depId) => depId !== id),
                         })),
                     selectedServiceId: state.selectedServiceId === id ? null : state.selectedServiceId,
                 }));
