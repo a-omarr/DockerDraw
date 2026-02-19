@@ -28,7 +28,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
+    <div className="flex flex-col h-screen overflow-hidden bg-background">
       {/* Top nav */}
       <Header />
 

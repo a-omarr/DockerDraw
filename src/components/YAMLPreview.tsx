@@ -1,7 +1,12 @@
 import { useState } from 'react';
-import { Copy, Check, Download, AlertTriangle, Lightbulb } from 'lucide-react';
+import { Copy, Check, Download, AlertTriangle, Lightbulb, FileCode, ChevronRight } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import { useAppStore } from '../store/useAppStore';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 export function YAMLPreview() {
     const { yamlOutput, warnings, setShowSuccessModal } = useAppStore();
@@ -30,148 +35,134 @@ export function YAMLPreview() {
     };
 
     return (
-        <div
-            className="flex flex-col"
-            style={{
-                height: 320,
-                background: 'var(--bg-secondary)',
-                borderTop: '1px solid var(--border-color)',
-            }}
-        >
+        <div className="flex flex-col h-[350px] bg-background border-t border-border shadow-[0_-4px_24px_rgba(0,0,0,0.03)]">
             {/* Header bar */}
-            <div
-                className="flex items-center justify-between px-4 py-2.5 flex-shrink-0"
-                style={{ borderBottom: '1px solid var(--border-color)' }}
-            >
-                <div className="flex items-center gap-3">
-                    <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
-                        📄 docker-compose.yml
-                    </span>
-                    {/* Warning badges */}
-                    {warningCount > 0 && (
-                        <button
-                            onClick={() => setShowWarnings((v) => !v)}
-                            className="flex items-center gap-1. px-2 py-0.5 rounded-full text-xs font-medium transition-all"
-                            style={{
-                                background: 'rgba(251, 146, 60, 0.15)',
-                                color: '#fb923c',
-                                border: '1px solid rgba(251, 146, 60, 0.3)',
-                            }}
-                        >
-                            <AlertTriangle size={10} />
-                            {warningCount} warning{warningCount !== 1 ? 's' : ''}
-                        </button>
-                    )}
-                    {tipCount > 0 && (
-                        <button
-                            onClick={() => setShowWarnings((v) => !v)}
-                            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
-                            style={{
-                                background: 'rgba(52, 211, 153, 0.1)',
-                                color: 'var(--accent-green)',
-                                border: '1px solid rgba(52, 211, 153, 0.3)',
-                            }}
-                        >
-                            <Lightbulb size={10} />
-                            {tipCount} tip{tipCount !== 1 ? 's' : ''}
-                        </button>
-                    )}
+            <div className="flex items-center justify-between px-6 py-2 border-b bg-muted/30">
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <FileCode size={14} className="text-muted-foreground" />
+                        <span className="text-xs font-bold tracking-tight text-foreground/80 uppercase">
+                            docker-compose.yml
+                        </span>
+                    </div>
+
+                    <Separator orientation="vertical" className="h-4" />
+
+                    <div className="flex items-center gap-2">
+                        {warningCount > 0 && (
+                            <Badge
+                                variant="outline"
+                                className="cursor-pointer hover:bg-amber-100/50 transition-colors gap-1.5 h-6 px-2.5 border-amber-200 text-amber-700 bg-amber-50/50 font-bold text-[10px]"
+                                onClick={() => setShowWarnings(v => !v)}
+                            >
+                                <AlertTriangle size={10} className="fill-amber-700/20" />
+                                {warningCount} {warningCount === 1 ? 'Warning' : 'Warnings'}
+                            </Badge>
+                        )}
+                        {tipCount > 0 && (
+                            <Badge
+                                variant="outline"
+                                className="cursor-pointer hover:bg-emerald-100/50 transition-colors gap-1.5 h-6 px-2.5 border-emerald-200 text-emerald-700 bg-emerald-50/50 font-bold text-[10px]"
+                                onClick={() => setShowWarnings(v => !v)}
+                            >
+                                <Lightbulb size={10} className="fill-emerald-700/20" />
+                                {tipCount} {tipCount === 1 ? 'Tip' : 'Tips'}
+                            </Badge>
+                        )}
+                    </div>
                 </div>
+
                 <div className="flex items-center gap-2">
-                    {/* Copy */}
-                    <button
+                    <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={handleCopy}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
-                        style={{
-                            background: copied ? 'rgba(52, 211, 153, 0.15)' : 'var(--bg-tertiary)',
-                            border: copied ? '1px solid rgba(52, 211, 153, 0.4)' : '1px solid var(--border-color)',
-                            color: copied ? 'var(--accent-green)' : 'var(--text-secondary)',
-                        }}
+                        className={cn(
+                            "h-8 gap-2 px-3 text-[11px] font-bold transition-all border-none ring-0",
+                            copied ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-muted hover:bg-muted-foreground/10"
+                        )}
                     >
                         {copied ? <Check size={12} /> : <Copy size={12} />}
-                        {copied ? 'Copied!' : 'Copy'}
-                    </button>
-                    {/* Download */}
-                    <button
+                        {copied ? 'Copied' : 'Copy'}
+                    </Button>
+                    <Button
+                        size="sm"
                         onClick={handleDownload}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90"
-                        style={{
-                            background: 'linear-gradient(135deg, #4f8ef7, #22d3ee)',
-                            color: 'white',
-                        }}
+                        className="h-8 gap-2 px-4 text-[11px] font-bold shadow-sm"
                     >
                         <Download size={12} />
-                        Download
-                    </button>
+                        Download Compose File
+                    </Button>
                 </div>
             </div>
 
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 overflow-hidden relative">
                 {/* Monaco editor */}
-                <div className="flex-1 overflow-hidden">
+                <div className="flex-1 overflow-hidden opacity-90">
                     <Editor
                         height="100%"
                         language="yaml"
                         value={yamlOutput}
-                        theme="vs-dark"
+                        theme="vs"
                         options={{
                             readOnly: true,
                             minimap: { enabled: false },
                             scrollBeyondLastLine: false,
-                            fontSize: 12,
+                            fontSize: 13,
                             lineNumbers: 'on',
                             wordWrap: 'on',
-                            padding: { top: 8, bottom: 8 },
-                            scrollbar: { verticalScrollbarSize: 6, horizontalScrollbarSize: 6 },
-                            fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                            padding: { top: 16, bottom: 16 },
+                            scrollbar: {
+                                verticalScrollbarSize: 8,
+                                horizontalScrollbarSize: 8,
+                                verticalSliderSize: 4,
+                                horizontalSliderSize: 4,
+                                useShadows: false
+                            },
+                            fontFamily: "JetBrains Mono, Fira Code, monospace",
                         }}
                     />
                 </div>
 
                 {/* Warnings panel */}
                 {showWarnings && warnings.length > 0 && (
-                    <div
-                        className="flex-shrink-0 overflow-y-auto"
-                        style={{
-                            width: 280,
-                            borderLeft: '1px solid var(--border-color)',
-                            background: 'var(--bg-primary)',
-                        }}
-                    >
-                        <div className="p-3 space-y-2">
-                            {warnings.map((w) => (
-                                <div
-                                    key={w.id}
-                                    className="p-2.5 rounded-xl text-xs"
-                                    style={{
-                                        background: w.type === 'tip'
-                                            ? 'rgba(52, 211, 153, 0.05)'
-                                            : w.type === 'error'
-                                                ? 'rgba(248, 113, 113, 0.05)'
-                                                : 'rgba(251, 146, 60, 0.05)',
-                                        border: w.type === 'tip'
-                                            ? '1px solid rgba(52, 211, 153, 0.15)'
-                                            : w.type === 'error'
-                                                ? '1px solid rgba(248, 113, 113, 0.15)'
-                                                : '1px solid rgba(251, 146, 60, 0.15)',
-                                    }}
-                                >
-                                    <div className="flex items-start gap-1.5">
-                                        <span className="flex-shrink-0 mt-0.5">
-                                            {w.type === 'tip' ? '💡' : w.type === 'error' ? '🔴' : '⚠️'}
-                                        </span>
-                                        <div>
-                                            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.5 }}>{w.message}</p>
-                                            {w.action && (
-                                                <p className="mt-1 italic" style={{ color: 'var(--text-muted)' }}>
-                                                    {w.action}
-                                                </p>
-                                            )}
+                    <div className="flex-shrink-0 w-80 border-l bg-muted/10 backdrop-blur-sm animate-in slide-in-from-right-1 duration-300">
+                        <ScrollArea className="h-full">
+                            <div className="p-4 space-y-3">
+                                {warnings.map((w) => (
+                                    <div
+                                        key={w.id}
+                                        className={cn(
+                                            "p-3 rounded-lg border text-[11px] leading-relaxed relative overflow-hidden group transition-all hover:shadow-sm",
+                                            w.type === 'tip'
+                                                ? 'bg-emerald-50/30 border-emerald-100 text-emerald-900/80'
+                                                : w.type === 'error'
+                                                    ? 'bg-red-50/30 border-red-100 text-red-900/80'
+                                                    : 'bg-amber-50/30 border-amber-100 text-amber-900/80'
+                                        )}
+                                    >
+                                        <div className="flex items-start gap-2.5">
+                                            <div className={cn(
+                                                "shrink-0 mt-0.5 w-5 h-5 rounded-full flex items-center justify-center",
+                                                w.type === 'tip' ? 'bg-emerald-100 text-emerald-600' :
+                                                    w.type === 'error' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
+                                            )}>
+                                                {w.type === 'tip' ? <Lightbulb size={12} /> : <AlertTriangle size={12} />}
+                                            </div>
+                                            <div className="space-y-1">
+                                                <p className="font-medium">{w.message}</p>
+                                                {w.action && (
+                                                    <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity italic decoration-dotted underline-offset-2">
+                                                        <ChevronRight size={10} />
+                                                        <span>{w.action}</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        </ScrollArea>
                     </div>
                 )}
             </div>

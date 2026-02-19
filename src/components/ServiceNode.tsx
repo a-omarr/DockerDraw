@@ -2,6 +2,10 @@ import { Trash2, Copy, Edit3, Network, HardDrive, Globe } from 'lucide-react';
 import type { Service } from '../types';
 import { useAppStore } from '../store/useAppStore';
 import { serviceTemplates } from '../data/serviceTemplates';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface Props {
     service: Service;
@@ -15,26 +19,18 @@ export function ServiceNode({ service, isSelected }: Props) {
     const emoji = template?.emoji || '📦';
 
     return (
-        <div
+        <Card
             onClick={() => selectService(isSelected ? null : service.id)}
-            className="rounded-2xl p-4 cursor-pointer transition-all duration-200"
-            style={{
-                background: isSelected
-                    ? `linear-gradient(135deg, ${color}18 0%, var(--bg-card) 100%)`
-                    : 'var(--bg-card)',
-                border: isSelected
-                    ? `1px solid ${color}80`
-                    : '1px solid var(--border-color)',
-                boxShadow: isSelected
-                    ? `0 0 20px ${color}25, 0 4px 20px rgba(0,0,0,0.3)`
-                    : '0 2px 8px rgba(0,0,0,0.2)',
-            }}
+            className={cn(
+                "p-4 cursor-pointer transition-all duration-200 border-border/60 hover:border-border hover:shadow-md",
+                isSelected && "ring-2 ring-primary ring-offset-2 shadow-lg scale-[1.01]"
+            )}
         >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
                 {/* Icon */}
                 <div
-                    className="flex items-center justify-center w-11 h-11 rounded-xl text-xl flex-shrink-0"
-                    style={{ background: `${color}20`, border: `1px solid ${color}40` }}
+                    className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl flex-shrink-0 shadow-sm border border-border/50"
+                    style={{ backgroundColor: `${color}10`, color: color }}
                 >
                     {emoji}
                 </div>
@@ -42,37 +38,34 @@ export function ServiceNode({ service, isSelected }: Props) {
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+                        <span className="font-bold text-sm tracking-tight text-foreground">
                             {service.name}
                         </span>
-                        <span
-                            className="text-xs px-2 py-0.5 rounded-full"
-                            style={{ background: `${color}20`, color }}
-                        >
+                        <Badge variant="outline" className="font-mono text-[10px] h-4 px-1.5 bg-background">
                             {service.image.split(':')[1] || 'latest'}
-                        </span>
+                        </Badge>
                     </div>
-                    <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
+                    <p className="text-xs text-muted-foreground truncate font-mono opacity-70">
                         {service.image}
                     </p>
 
                     {/* Badges row */}
-                    <div className="flex items-center gap-3 mt-2 flex-wrap">
+                    <div className="flex items-center gap-4 mt-3 flex-wrap">
                         {service.ports.length > 0 && (
-                            <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                                <Globe size={10} />
+                            <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground bg-slate-100/50 px-2 py-0.5 rounded-full border border-slate-200/50">
+                                <Globe size={11} className="text-blue-500" />
                                 {service.ports.map((p) => `${p.host}:${p.container}`).join(', ')}
                             </div>
                         )}
                         {service.volumes.length > 0 && (
-                            <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                                <HardDrive size={10} />
-                                {service.volumes.length} vol
+                            <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground bg-slate-100/50 px-2 py-0.5 rounded-full border border-slate-200/50">
+                                <HardDrive size={11} className="text-amber-500" />
+                                {service.volumes.length} volumes
                             </div>
                         )}
                         {service.networks.length > 0 && (
-                            <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                                <Network size={10} />
+                            <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground bg-slate-100/50 px-2 py-0.5 rounded-full border border-slate-200/50">
+                                <Network size={11} className="text-emerald-500" />
                                 {service.networks[0]}
                             </div>
                         )}
@@ -80,67 +73,45 @@ export function ServiceNode({ service, isSelected }: Props) {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                    <ActionBtn
-                        icon={<Edit3 size={13} />}
-                        label="Edit"
-                        color="var(--accent-blue)"
+                <div className="flex items-center gap-1 shrink-0 ml-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5"
                         onClick={(e) => {
                             e.stopPropagation();
                             selectService(service.id);
                         }}
-                    />
-                    <ActionBtn
-                        icon={<Copy size={13} />}
-                        label="Duplicate"
-                        color="var(--accent-green)"
+                        title="Edit Service"
+                    >
+                        <Edit3 size={14} />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50"
                         onClick={(e) => {
                             e.stopPropagation();
                             duplicateService(service.id);
                         }}
-                    />
-                    <ActionBtn
-                        icon={<Trash2 size={13} />}
-                        label="Remove"
-                        color="#f87171"
+                        title="Duplicate"
+                    >
+                        <Copy size={14} />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
                         onClick={(e) => {
                             e.stopPropagation();
                             removeService(service.id);
                         }}
-                    />
+                        title="Remove"
+                    >
+                        <Trash2 size={14} />
+                    </Button>
                 </div>
             </div>
-        </div>
-    );
-}
-
-function ActionBtn({
-    icon,
-    label,
-    color,
-    onClick,
-}: {
-    icon: React.ReactNode;
-    label: string;
-    color: string;
-    onClick: (e: React.MouseEvent) => void;
-}) {
-    return (
-        <button
-            onClick={onClick}
-            title={label}
-            className="w-7 h-7 flex items-center justify-center rounded-lg transition-all hover:scale-110"
-            style={{ color: 'var(--text-muted)' }}
-            onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.color = color;
-                (e.currentTarget as HTMLElement).style.background = `${color}18`;
-            }}
-            onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
-                (e.currentTarget as HTMLElement).style.background = 'transparent';
-            }}
-        >
-            {icon}
-        </button>
+        </Card>
     );
 }

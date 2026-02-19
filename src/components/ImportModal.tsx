@@ -1,11 +1,20 @@
 import React, { useCallback, useState } from 'react';
-import { Upload, FileText, AlertCircle } from 'lucide-react';
-import { Modal } from './TemplateGallery';
+import { Upload, FileText, AlertCircle, Terminal } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { parseYAMLToServices } from '../utils/yamlImport';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 
 export function ImportModal() {
-    const { setShowImportModal, importFromYAML } = useAppStore();
+    const { showImportModal, setShowImportModal, importFromYAML } = useAppStore();
     const [yamlText, setYamlText] = useState('');
     const [error, setError] = useState('');
     const [isDragging, setIsDragging] = useState(false);
@@ -53,78 +62,89 @@ services:
       POSTGRES_PASSWORD: changeme`;
 
     return (
-        <Modal title="Import docker-compose.yml" onClose={() => setShowImportModal(false)}>
-            {/* Drop zone */}
-            <div
-                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={handleFileDrop}
-                onClick={() => document.getElementById('file-input')?.click()}
-                className="flex flex-col items-center justify-center p-6 rounded-xl mb-4 cursor-pointer transition-all"
-                style={{
-                    background: isDragging ? 'rgba(79, 142, 247, 0.1)' : 'var(--bg-tertiary)',
-                    border: isDragging
-                        ? '2px dashed var(--accent-blue)'
-                        : '2px dashed var(--border-color)',
-                }}
-            >
-                <Upload size={24} className="mb-2" style={{ color: isDragging ? 'var(--accent-blue)' : 'var(--text-muted)' }} />
-                <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                    Drop your docker-compose.yml here
-                </p>
-                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>or click to browse</p>
-                <input id="file-input" type="file" accept=".yml,.yaml" className="hidden" onChange={handleFileInput} />
-            </div>
+        <Dialog open={showImportModal} onOpenChange={setShowImportModal}>
+            <DialogContent className="max-w-xl max-h-[90vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
+                <DialogHeader className="px-6 py-4 border-b bg-muted/20">
+                    <DialogTitle className="text-xl font-bold tracking-tight">Import Configuration</DialogTitle>
+                    <DialogDescription className="text-xs">
+                        Import an existing docker-compose.yml file to visualize and edit it.
+                    </DialogDescription>
+                </DialogHeader>
 
-            {/* Or paste */}
-            <div className="flex items-center gap-3 mb-3">
-                <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
-                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>or paste YAML</span>
-                <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
-            </div>
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    {/* Drop zone */}
+                    <div
+                        onDragOver={(e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); }}
+                        onDragLeave={() => setIsDragging(false)}
+                        onDrop={handleFileDrop}
+                        onClick={() => document.getElementById('file-input')?.click()}
+                        className={cn(
+                            "group flex flex-col items-center justify-center p-8 rounded-xl cursor-pointer transition-all border-2 border-dashed",
+                            isDragging
+                                ? "bg-primary/5 border-primary"
+                                : "bg-muted/30 border-muted-foreground/20 hover:bg-muted/50 hover:border-muted-foreground/40"
+                        )}
+                    >
+                        <div className={cn(
+                            "w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-colors",
+                            isDragging ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground group-hover:text-foreground"
+                        )}>
+                            <Upload size={20} />
+                        </div>
+                        <p className="text-sm font-semibold text-foreground">
+                            Drop your docker-compose.yml here
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">or click to browse your files</p>
+                        <input id="file-input" type="file" accept=".yml,.yaml" className="hidden" onChange={handleFileInput} />
+                    </div>
 
-            <textarea
-                value={yamlText}
-                onChange={(e) => setYamlText(e.target.value)}
-                placeholder={sampleYaml}
-                rows={10}
-                className="w-full px-4 py-3 rounded-xl text-xs outline-none font-mono resize-none"
-                style={{
-                    background: 'var(--bg-tertiary)',
-                    border: '1px solid var(--border-color)',
-                    color: 'var(--text-primary)',
-                    lineHeight: 1.6,
-                }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--accent-blue)')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border-color)')}
-            />
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-muted" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-background px-2 text-muted-foreground font-semibold tracking-wider">
+                                Or paste YAML content
+                            </span>
+                        </div>
+                    </div>
 
-            {error && (
-                <div
-                    className="flex items-start gap-2 px-3 py-2.5 rounded-xl mt-3 text-xs"
-                    style={{
-                        background: 'rgba(248, 113, 113, 0.1)',
-                        border: '1px solid rgba(248, 113, 113, 0.3)',
-                        color: '#f87171',
-                    }}
-                >
-                    <AlertCircle size={13} className="flex-shrink-0 mt-0.5" />
-                    {error}
+                    <div className="space-y-4">
+                        <div className="relative">
+                            <Textarea
+                                value={yamlText}
+                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setYamlText(e.target.value)}
+                                placeholder={sampleYaml}
+                                className="min-h-[250px] font-mono text-[13px] leading-relaxed bg-muted/30 border-none shadow-none focus-visible:ring-1 focus-visible:ring-primary/20 p-4 resize-none"
+                            />
+                            <div className="absolute top-3 right-3 opacity-20 group-hover:opacity-40 transition-opacity">
+                                <Terminal size={14} />
+                            </div>
+                        </div>
+
+                        {error && (
+                            <div className="flex items-start gap-3 p-4 rounded-lg bg-destructive/10 border border-destructive/20 animate-in fade-in slide-in-from-top-1">
+                                <AlertCircle size={16} className="text-destructive shrink-0 mt-0.5" />
+                                <div className="space-y-1">
+                                    <p className="text-xs font-bold text-destructive uppercase tracking-tight">Import Error</p>
+                                    <p className="text-[13px] text-destructive/90 leading-tight font-medium">{error}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            )}
 
-            <button
-                onClick={handleImport}
-                disabled={!yamlText.trim()}
-                className="w-full mt-4 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-40"
-                style={{
-                    background: 'linear-gradient(135deg, #4f8ef7, #22d3ee)',
-                    color: 'white',
-                }}
-            >
-                <FileText size={15} />
-                Import & Visualize
-            </button>
-        </Modal>
+                <div className="p-6 pt-0 mt-auto border-t bg-muted/20">
+                    <Button
+                        onClick={handleImport}
+                        disabled={!yamlText.trim()}
+                        className="w-full h-11 text-sm font-bold shadow-sm"
+                    >
+                        <FileText size={16} className="mr-2" />
+                        Import & Visualize Stack
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
     );
 }

@@ -10,6 +10,14 @@ import {
     ChevronDown,
 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export function Header() {
     const {
@@ -28,7 +36,6 @@ export function Header() {
 
     const [editingName, setEditingName] = useState(false);
     const [tempName, setTempName] = useState(projectName);
-    const [showPresetMenu, setShowPresetMenu] = useState(false);
 
     const handleNameSubmit = () => {
         setProjectName(tempName || 'my-project');
@@ -47,189 +54,136 @@ export function Header() {
     };
 
     return (
-        <header
-            className="flex items-center justify-between px-5 py-3 border-b"
-            style={{
-                background: 'linear-gradient(135deg, #13172a 0%, #1a1d2e 100%)',
-                borderColor: 'var(--border-color)',
-                minHeight: 56,
-            }}
-        >
+        <header className="flex items-center justify-between px-6 py-3 border-b bg-background h-14 sticky top-0 z-50">
             {/* Logo */}
             <div className="flex items-center gap-3">
-                <div
-                    className="flex items-center justify-center w-9 h-9 rounded-xl"
-                    style={{ background: 'linear-gradient(135deg, #4f8ef7, #22d3ee)' }}
-                >
-                    <Layers size={18} className="text-white" />
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary">
+                    <Layers size={16} className="text-primary-foreground" />
                 </div>
-                <div>
-                    <span className="text-lg font-bold gradient-text">DockerDraw</span>
-                    <span className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>
-                        Compose Builder
+                <div className="flex items-baseline gap-2">
+                    <span className="text-lg font-bold tracking-tight">DockerDraw</span>
+                    <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest hidden sm:inline">
+                        v1.0
                     </span>
                 </div>
 
                 {/* Project name */}
-                <div className="ml-4 pl-4" style={{ borderLeft: '1px solid var(--border-color)' }}>
+                <div className="ml-4 pl-4 border-l">
                     {editingName ? (
-                        <input
+                        <Input
                             autoFocus
                             value={tempName}
-                            onChange={(e) => setTempName(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempName(e.target.value)}
                             onBlur={handleNameSubmit}
-                            onKeyDown={(e) => e.key === 'Enter' && handleNameSubmit()}
-                            className="px-2 py-1 rounded-lg text-sm font-medium outline-none"
-                            style={{
-                                background: 'var(--bg-tertiary)',
-                                border: '1px solid var(--accent-blue)',
-                                color: 'var(--text-primary)',
-                                width: 180,
-                            }}
+                            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && handleNameSubmit()}
+                            className="h-8 w-48 text-sm font-medium"
                         />
                     ) : (
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-2 font-medium text-muted-foreground hover:text-foreground"
                             onClick={() => { setTempName(projectName); setEditingName(true); }}
-                            className="px-2 py-1 rounded-lg text-sm font-medium transition-colors hover:opacity-80"
-                            style={{ color: 'var(--text-secondary)' }}
                             title="Click to rename project"
                         >
                             📁 {projectName}
-                        </button>
+                        </Button>
                     )}
                 </div>
             </div>
 
             {/* Actions */}
             <div className="flex items-center gap-2">
-
                 {/* Environment Preset Toggle */}
-                <div className="relative">
-                    <button
-                        onClick={() => setShowPresetMenu((v) => !v)}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all hover:opacity-90"
-                        style={{
-                            background: environmentPreset === 'development'
-                                ? 'rgba(52, 211, 153, 0.15)'
-                                : 'rgba(251, 146, 60, 0.15)',
-                            border: environmentPreset === 'development'
-                                ? '1px solid rgba(52, 211, 153, 0.5)'
-                                : '1px solid rgba(251, 146, 60, 0.5)',
-                            color: environmentPreset === 'development' ? '#34d399' : '#fb923c',
-                        }}
-                    >
-                        <Settings2 size={14} />
-                        {environmentPreset === 'development' ? '⚙ Development' : '🚀 Production'}
-                        <ChevronDown size={12} />
-                    </button>
-                    {showPresetMenu && (
-                        <div
-                            className="absolute right-0 top-full mt-1 rounded-xl overflow-hidden z-50 shadow-2xl"
-                            style={{
-                                background: 'var(--bg-card)',
-                                border: '1px solid var(--border-color)',
-                                minWidth: 200,
-                            }}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className={`h-9 gap-2 font-medium ${environmentPreset === 'development'
+                                ? 'border-emerald-200 bg-emerald-50/50 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800'
+                                : 'border-orange-200 bg-orange-50/50 text-orange-700 hover:bg-orange-50 hover:text-orange-800'
+                                }`}
                         >
-                            {(['development', 'production'] as const).map((preset) => (
-                                <button
-                                    key={preset}
-                                    onClick={() => { setEnvironmentPreset(preset); setShowPresetMenu(false); }}
-                                    className="w-full flex items-start gap-3 px-4 py-3 text-left transition-colors"
-                                    style={{
-                                        background: environmentPreset === preset ? 'var(--bg-tertiary)' : 'transparent',
-                                        color: 'var(--text-primary)',
-                                    }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-tertiary)')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.background = environmentPreset === preset ? 'var(--bg-tertiary)' : 'transparent')}
-                                >
+                            <Settings2 size={14} />
+                            {environmentPreset === 'development' ? 'Development' : 'Production'}
+                            <ChevronDown size={12} className="opacity-50" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                        {(['development', 'production'] as const).map((preset) => (
+                            <DropdownMenuItem
+                                key={preset}
+                                onClick={() => setEnvironmentPreset(preset)}
+                                className="flex flex-col items-start gap-0.5"
+                            >
+                                <div className="flex items-center gap-2 font-medium capitalize">
                                     <span>{preset === 'development' ? '⚙' : '🚀'}</span>
-                                    <div>
-                                        <div className="text-sm font-medium capitalize">{preset}</div>
-                                        <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                                            {preset === 'development' ? 'Hot reload, verbose logs, exposed ports' : 'Restart policies, resource limits, health checks'}
-                                        </div>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                                    {preset}
+                                </div>
+                                <span className="text-[10px] text-muted-foreground">
+                                    {preset === 'development'
+                                        ? 'Hot reload, verbose logs, exposed ports'
+                                        : 'Restart policies, resource limits, health checks'}
+                                </span>
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
 
-                {/* Templates */}
-                <button
+                <div className="h-4 w-[1px] bg-border mx-1" />
+
+                {/* Action Buttons */}
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 gap-2 text-muted-foreground"
                     onClick={() => setShowTemplateGallery(true)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all hover:opacity-90"
-                    style={{
-                        background: 'var(--bg-tertiary)',
-                        border: '1px solid var(--border-color)',
-                        color: 'var(--text-secondary)',
-                    }}
-                    title="Browse Templates"
                 >
-                    <LayoutTemplate size={15} />
-                    <span className="hidden sm:inline">Templates</span>
-                </button>
+                    <LayoutTemplate size={14} />
+                    <span className="hidden lg:inline">Templates</span>
+                </Button>
 
-                {/* Import */}
-                <button
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 gap-2 text-muted-foreground"
                     onClick={() => setShowImportModal(true)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all hover:opacity-90"
-                    style={{
-                        background: 'var(--bg-tertiary)',
-                        border: '1px solid var(--border-color)',
-                        color: 'var(--text-secondary)',
-                    }}
-                    title="Import YAML"
                 >
-                    <Upload size={15} />
-                    <span className="hidden sm:inline">Import</span>
-                </button>
+                    <Upload size={14} />
+                    <span className="hidden lg:inline">Import</span>
+                </Button>
 
-                {/* Save */}
-                <button
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 gap-2 text-muted-foreground"
                     onClick={() => setShowSaveModal(true)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all hover:opacity-90"
-                    style={{
-                        background: 'var(--bg-tertiary)',
-                        border: '1px solid var(--border-color)',
-                        color: 'var(--text-secondary)',
-                    }}
-                    title="Save Project"
                 >
-                    <Save size={15} />
-                    <span className="hidden sm:inline">Save</span>
-                </button>
+                    <Save size={14} />
+                    <span className="hidden lg:inline">Save</span>
+                </Button>
 
-                {/* Load */}
                 {savedProjects.length > 0 && (
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-9 gap-2 text-muted-foreground"
                         onClick={() => setShowLoadModal(true)}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all hover:opacity-90"
-                        style={{
-                            background: 'var(--bg-tertiary)',
-                            border: '1px solid var(--border-color)',
-                            color: 'var(--text-secondary)',
-                        }}
-                        title="Load Project"
                     >
-                        <FolderOpen size={15} />
-                        <span className="hidden sm:inline">Load</span>
-                    </button>
+                        <FolderOpen size={14} />
+                        <span className="hidden lg:inline">Load</span>
+                    </Button>
                 )}
 
-                {/* Download */}
-                <button
+                <Button
+                    size="sm"
+                    className="h-9 gap-2 ml-2 shadow-sm"
                     onClick={handleDownload}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-90"
-                    style={{
-                        background: 'linear-gradient(135deg, #4f8ef7, #22d3ee)',
-                        color: 'white',
-                    }}
                 >
-                    <Download size={15} />
+                    <Download size={14} />
                     Download
-                </button>
+                </Button>
             </div>
         </header>
     );

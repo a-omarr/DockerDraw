@@ -1,64 +1,88 @@
-import { CheckCircle, Terminal } from 'lucide-react';
-import { Modal } from './TemplateGallery';
+import { Terminal, ArrowRight, FileCheck, ExternalLink } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 export function DownloadSuccessModal() {
-    const { setShowSuccessModal, projectName } = useAppStore();
+    const { showSuccessModal, setShowSuccessModal, projectName } = useAppStore();
 
     const steps = [
         { step: 1, text: 'Move the file to your project directory', code: null },
         { step: 2, text: 'Create a .env file for secrets (optional)', code: 'POSTGRES_PASSWORD=your_secure_password' },
-        { step: 3, text: 'Start your stack', code: 'docker-compose up -d' },
-        { step: 4, text: 'Check running services', code: 'docker-compose ps' },
-        { step: 5, text: 'View logs', code: 'docker-compose logs -f' },
+        { step: 3, text: 'Start your stack', code: 'docker compose up -d' },
     ];
 
     return (
-        <Modal title="Download Successful!" onClose={() => setShowSuccessModal(false)} maxWidth={500}>
-            <div className="flex items-center gap-3 p-4 rounded-xl mb-5" style={{ background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.3)' }}>
-                <CheckCircle size={28} style={{ color: 'var(--accent-green)', flexShrink: 0 }} />
-                <div>
-                    <p className="font-semibold text-sm" style={{ color: 'var(--accent-green)' }}>docker-compose.yml downloaded</p>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Your {projectName} stack is ready to use.</p>
-                </div>
-            </div>
-
-            <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>Next Steps</h3>
-
-            <div className="space-y-2.5">
-                {steps.map(({ step, text, code }) => (
-                    <div key={step} className="flex items-start gap-3">
-                        <div
-                            className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5"
-                            style={{ background: 'rgba(79, 142, 247, 0.2)', color: 'var(--accent-blue)' }}
-                        >
-                            {step}
+        <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+            <DialogContent className="max-w-md p-0 overflow-hidden border-none shadow-2xl">
+                <DialogHeader className="px-6 py-5 border-b bg-emerald-50/50">
+                    <div className="flex items-center gap-3 mb-1">
+                        <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                            <FileCheck size={18} />
                         </div>
-                        <div className="flex-1">
-                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{text}</p>
-                            {code && (
-                                <div
-                                    className="flex items-center gap-2 mt-1.5 px-3 py-2 rounded-lg"
-                                    style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}
-                                >
-                                    <Terminal size={11} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-                                    <code className="text-xs" style={{ color: 'var(--accent-green)', fontFamily: 'monospace' }}>
-                                        {code}
-                                    </code>
+                        <DialogTitle className="text-xl font-bold tracking-tight text-emerald-900">Success!</DialogTitle>
+                    </div>
+                    <DialogDescription className="text-xs text-emerald-700/70">
+                        Your <span className="font-bold">{projectName}</span> configuration has been downloaded.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="p-6 space-y-6">
+                    <div className="space-y-4">
+                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-1">
+                            Recommended Next Steps
+                        </h3>
+
+                        <div className="space-y-3">
+                            {steps.map(({ step, text, code }) => (
+                                <div key={step} className="flex gap-4 group">
+                                    <div className="flex flex-col items-center">
+                                        <div className="w-6 h-6 rounded-full bg-muted border flex items-center justify-center text-[10px] font-bold text-muted-foreground shrink-0 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-all duration-300">
+                                            {step}
+                                        </div>
+                                        {step < steps.length && <div className="w-px h-full bg-border mt-1" />}
+                                    </div>
+                                    <div className="flex-1 pb-4">
+                                        <p className="text-[13px] font-medium text-foreground leading-tight mb-2">{text}</p>
+                                        {code && (
+                                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/40 border border-border/40 font-mono text-[11px] text-emerald-700 group-hover:bg-muted/60 transition-colors">
+                                                <Terminal size={12} className="text-muted-foreground" />
+                                                {code}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            )}
+                            ))}
                         </div>
                     </div>
-                ))}
-            </div>
 
-            <button
-                onClick={() => setShowSuccessModal(false)}
-                className="w-full mt-5 py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-                style={{ background: 'linear-gradient(135deg, #4f8ef7, #22d3ee)', color: 'white' }}
-            >
-                Got it!
-            </button>
-        </Modal>
+                    <div className="flex items-center justify-between p-4 rounded-xl bg-blue-50/30 border border-blue-100/50">
+                        <div className="flex items-center gap-2 text-blue-700">
+                            <ExternalLink size={14} />
+                            <span className="text-xs font-semibold">Need help?</span>
+                        </div>
+                        <a href="https://docs.docker.com/compose/" target="_blank" rel="noreferrer" className="text-[10px] font-bold uppercase text-blue-600 hover:text-blue-800 transition-colors">
+                            View Docker Docs
+                        </a>
+                    </div>
+                </div>
+
+                <div className="p-6 pt-0">
+                    <Button
+                        onClick={() => setShowSuccessModal(false)}
+                        className="w-full h-11 text-sm font-bold shadow-sm"
+                    >
+                        Awesome, let's go!
+                        <ArrowRight size={16} className="ml-2" />
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
     );
 }

@@ -1,16 +1,22 @@
 import { useState } from 'react';
-import { Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { serviceTemplates } from '../data/serviceTemplates';
 import type { ServiceCategory, ServiceTemplate } from '../types';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 const CATEGORY_LABELS: Record<ServiceCategory, string> = {
-    database: '🗄️ Databases',
-    cache: '⚡ Caching',
-    webserver: '🌐 Web Servers',
-    queue: '📨 Message Queues',
-    app: '🚀 App Servers',
-    monitoring: '📊 Monitoring',
+    database: 'Databases',
+    cache: 'Caching',
+    webserver: 'Web Servers',
+    queue: 'Message Queues',
+    app: 'App Servers',
+    monitoring: 'Monitoring',
 };
 
 const CATEGORY_ORDER: ServiceCategory[] = ['app', 'database', 'cache', 'webserver', 'queue', 'monitoring'];
@@ -41,77 +47,69 @@ export function ServiceLibrary() {
     };
 
     return (
-        <aside
-            className="flex flex-col h-full"
-            style={{
-                width: 220,
-                minWidth: 220,
-                background: 'var(--bg-secondary)',
-                borderRight: '1px solid var(--border-color)',
-                overflowY: 'auto',
-            }}
-        >
+        <aside className="w-64 border-r bg-muted/30 flex flex-col h-full shrink-0">
             {/* Header */}
-            <div
-                className="px-3 pt-4 pb-3 sticky top-0 z-10"
-                style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}
-            >
-                <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
-                    Services
-                </p>
-                <div
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl"
-                    style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}
-                >
-                    <Search size={13} style={{ color: 'var(--text-muted)' }} />
-                    <input
+            <div className="p-4 space-y-4 border-b bg-background/50 backdrop-blur-sm">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                        Library
+                    </h2>
+                    <Badge variant="secondary" className="font-mono text-[10px] px-1.5 h-4">
+                        {serviceTemplates.length}
+                    </Badge>
+                </div>
+                <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search..."
-                        className="bg-transparent text-sm outline-none w-full"
-                        style={{ color: 'var(--text-primary)' }}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+                        placeholder="Search services..."
+                        className="pl-9 h-9 bg-background focus-visible:ring-1"
                     />
                 </div>
             </div>
 
             {/* Service groups */}
-            <div className="flex-1 px-2 py-2 space-y-1">
-                {Object.entries(grouped).map(([category, templates]) => (
-                    <div key={category}>
-                        <button
-                            onClick={() => toggleCategory(category)}
-                            className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors mb-1"
-                            style={{ color: 'var(--text-muted)' }}
-                            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
-                            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
-                        >
-                            <span>{CATEGORY_LABELS[category as ServiceCategory] || category}</span>
-                            {collapsed[category] ? <ChevronDown size={11} /> : <ChevronUp size={11} />}
-                        </button>
-                        {!collapsed[category] && (
-                            <div className="space-y-1">
-                                {templates.map((template) => {
-                                    const count = getServiceCount(template.id);
-                                    return (
-                                        <ServiceLibraryCard
-                                            key={template.id}
-                                            template={template}
-                                            count={count}
-                                            onAdd={() => addService(template.id)}
-                                        />
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </div>
-                ))}
-                {Object.keys(grouped).length === 0 && (
-                    <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
-                        <p className="text-2xl mb-2">🔍</p>
-                        <p className="text-xs">No services match your search</p>
-                    </div>
-                )}
-            </div>
+            <ScrollArea className="flex-1">
+                <div className="p-3 space-y-4">
+                    {Object.entries(grouped).map(([category, templates]) => (
+                        <div key={category} className="space-y-1">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleCategory(category)}
+                                className="w-full justify-between h-8 px-2 hover:bg-transparent hover:text-foreground text-muted-foreground"
+                            >
+                                <span className="text-[10px] font-bold uppercase tracking-wider">
+                                    {CATEGORY_LABELS[category as ServiceCategory] || category}
+                                </span>
+                                {collapsed[category] ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
+                            </Button>
+                            {!collapsed[category] && (
+                                <div className="space-y-1 mt-1">
+                                    {templates.map((template) => {
+                                        const count = getServiceCount(template.id);
+                                        return (
+                                            <ServiceLibraryCard
+                                                key={template.id}
+                                                template={template}
+                                                count={count}
+                                                onAdd={() => addService(template.id)}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                    {Object.keys(grouped).length === 0 && (
+                        <div className="text-center py-12 px-4 space-y-2">
+                            <div className="text-3xl opacity-20">🔍</div>
+                            <p className="text-sm font-medium text-muted-foreground">No matches found</p>
+                        </div>
+                    )}
+                </div>
+            </ScrollArea>
         </aside>
     );
 }
@@ -126,43 +124,37 @@ function ServiceLibraryCard({
     onAdd: () => void;
 }) {
     return (
-        <button
+        <Card
             onClick={onAdd}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all service-card-hover group"
-            style={{
-                background: 'var(--bg-card)',
-                border: '1px solid var(--border-color)',
-                cursor: 'pointer',
-            }}
+            className={cn(
+                "p-2.5 flex items-center gap-3 cursor-pointer transition-all border-transparent shadow-none hover:bg-background hover:border-border hover:shadow-sm group relative",
+                count > 0 && "bg-background border-border/50"
+            )}
         >
             <div
-                className="flex items-center justify-center w-8 h-8 rounded-lg text-base flex-shrink-0 transition-transform group-hover:scale-110"
-                style={{ background: `${template.color}22` }}
+                className="w-8 h-8 rounded-md flex items-center justify-center text-lg shrink-0 transition-transform group-hover:scale-105"
+                style={{ backgroundColor: `${template.color}15`, color: template.color }}
             >
                 {template.emoji}
             </div>
             <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                <div className="flex items-center justify-between gap-1">
+                    <span className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
                         {template.name}
                     </span>
                     {count > 0 && (
-                        <span
-                            className="text-xs px-1.5 py-0.5 rounded-full font-medium ml-1"
-                            style={{
-                                background: 'rgba(79, 142, 247, 0.2)',
-                                color: 'var(--accent-blue)',
-                                fontSize: 10,
-                            }}
-                        >
+                        <Badge variant="default" className="h-4 px-1 text-[10px] font-mono min-w-[18px] justify-center">
                             {count}
-                        </span>
+                        </Badge>
                     )}
                 </div>
-                <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                    {template.defaultImage}
+                <p className="text-[10px] text-muted-foreground truncate font-mono">
+                    {template.defaultImage.split(':')[0]}
                 </p>
             </div>
-        </button>
+            <div className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Plus size={12} className="text-primary" />
+            </div>
+        </Card>
     );
 }
