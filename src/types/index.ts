@@ -1,3 +1,5 @@
+import type { IconType } from 'react-icons';
+
 export interface Port {
     host: number;
     container: number;
@@ -51,6 +53,7 @@ export interface ServiceTemplate {
     id: string;
     name: string;
     emoji: string;
+    Icon?: IconType;
     category: ServiceCategory;
     description: string;
     defaultImage: string;

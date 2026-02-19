@@ -135,7 +135,7 @@ function ServiceLibraryCard({
                 className="w-8 h-8 rounded-md flex items-center justify-center text-lg shrink-0 transition-transform group-hover:scale-105"
                 style={{ backgroundColor: `${template.color}15`, color: template.color }}
             >
-                {template.emoji}
+                {template.Icon ? <template.Icon size={18} /> : template.emoji}
             </div>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1">

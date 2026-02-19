@@ -92,7 +92,11 @@ export function TemplateGallery() {
                                                         variant="outline"
                                                         className="h-6 gap-1.5 px-2 font-medium text-[10px] bg-background border-border/40"
                                                     >
-                                                        <span className="text-xs">{t?.emoji || '📦'}</span>
+                                                        {t?.Icon ? (
+                                                            <t.Icon size={12} className="text-muted-foreground/80 group-hover:text-primary transition-colors" />
+                                                        ) : (
+                                                            <span className="text-xs">{t?.emoji || '📦'}</span>
+                                                        )}
                                                         {s.name}
                                                     </Badge>
                                                 );

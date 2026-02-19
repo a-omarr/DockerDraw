@@ -32,7 +32,7 @@ export function ServiceNode({ service, isSelected }: Props) {
                     className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl flex-shrink-0 shadow-sm border border-border/50"
                     style={{ backgroundColor: `${color}10`, color: color }}
                 >
-                    {emoji}
+                    {template?.Icon ? <template.Icon size={24} /> : emoji}
                 </div>
 
                 {/* Info */}
