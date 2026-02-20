@@ -38,7 +38,7 @@ export function ConfigPanel() {
 
     if (!service) {
         return (
-            <div className="hidden lg:flex flex-col items-center justify-center h-full w-[400px] border-l bg-muted/10">
+            <div className="hidden lg:flex flex-col items-center justify-center h-full w-96 border-l bg-muted/10">
                 <div className="text-center px-8 space-y-4">
                     <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
                         <Terminal size={32} className="text-muted-foreground/30" />
@@ -53,7 +53,7 @@ export function ConfigPanel() {
     }
 
     return (
-        <aside className="w-[400px] border-l bg-background flex flex-col h-full shrink-0 animate-in slide-in-from-right duration-300">
+        <aside className="w-full lg:w-96 border-l bg-background flex flex-col h-full shrink-0 animate-in slide-in-from-right duration-300">
             {/* Panel header */}
             <div className="flex items-center justify-between px-6 py-4 border-b h-14 bg-background/50 backdrop-blur-sm sticky top-0 z-20">
                 <div className="flex items-center gap-3">

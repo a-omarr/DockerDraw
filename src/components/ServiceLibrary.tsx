@@ -47,7 +47,7 @@ export function ServiceLibrary() {
     };
 
     return (
-        <aside className="w-64 border-r bg-muted/30 flex flex-col h-full shrink-0">
+        <aside className="w-full lg:w-64 border-r bg-muted/30 flex flex-col h-full shrink-0 bg-background">
             {/* Header */}
             <div className="p-4 space-y-4 border-b bg-background/50 backdrop-blur-sm">
                 <div className="flex items-center justify-between">
