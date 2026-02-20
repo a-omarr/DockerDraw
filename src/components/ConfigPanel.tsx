@@ -11,6 +11,7 @@ import {
     Link,
     Terminal,
     RotateCcw,
+    Info,
 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import type { Service, Port, Volume, EnvVar } from '../types';
@@ -30,6 +31,12 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export function ConfigPanel() {
     const { services, selectedServiceId, selectService, updateService } = useAppStore();
@@ -53,324 +60,384 @@ export function ConfigPanel() {
     }
 
     return (
-        <aside className="w-full lg:w-96 border-l bg-background flex flex-col h-full shrink-0 animate-in slide-in-from-right duration-300">
-            {/* Panel header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b h-14 bg-background/50 backdrop-blur-sm sticky top-0 z-20">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-lg shrink-0">
-                        {template?.Icon ? (
-                            <template.Icon size={18} style={{ color: template.color }} />
-                        ) : (
-                            template?.emoji || '📦'
-                        )}
+        <TooltipProvider delayDuration={300}>
+            <aside className="w-full lg:w-96 border-l bg-background flex flex-col h-full shrink-0 animate-in slide-in-from-right duration-300">
+                {/* Panel header */}
+                <div className="flex items-center justify-between px-6 py-4 border-b h-14 bg-background/50 backdrop-blur-sm sticky top-0 z-20">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-lg shrink-0">
+                            {template?.Icon ? (
+                                <template.Icon size={18} style={{ color: template.color }} />
+                            ) : (
+                                template?.emoji || '📦'
+                            )}
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold leading-none">{service.name}</p>
+                            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-tight mt-1">
+                                {template?.name || 'Custom Service'}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-sm font-bold leading-none">{service.name}</p>
-                        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-tight mt-1">
-                            {template?.name || 'Custom Service'}
-                        </p>
-                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        onClick={() => selectService(null)}
+                    >
+                        <X size={16} />
+                    </Button>
                 </div>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-full"
-                    onClick={() => selectService(null)}
-                >
-                    <X size={16} />
-                </Button>
-            </div>
 
-            <ScrollArea className="flex-1">
-                <div className="p-6">
-                    <Tabs defaultValue="general" className="w-full">
-                        <TabsList className="w-full grid grid-cols-3 mb-6">
-                            <TabsTrigger value="general" className="text-xs">General</TabsTrigger>
-                            <TabsTrigger value="env" className="text-xs">Env & Ports</TabsTrigger>
-                            <TabsTrigger value="advanced" className="text-xs">Advanced</TabsTrigger>
-                        </TabsList>
+                <ScrollArea className="flex-1">
+                    <div className="p-6">
+                        <Tabs defaultValue="general" className="w-full">
+                            <TabsList className="w-full grid grid-cols-3 mb-6">
+                                <TabsTrigger value="general" className="text-xs">General</TabsTrigger>
+                                <TabsTrigger value="env" className="text-xs">Env & Ports</TabsTrigger>
+                                <TabsTrigger value="advanced" className="text-xs">Advanced</TabsTrigger>
+                            </TabsList>
 
-                        <TabsContent value="general" className="space-y-8 mt-0">
-                            {/* Base Info */}
-                            <div className="space-y-4">
-                                <SectionHeader title="Base Configuration" />
+                            <TabsContent value="general" className="space-y-8 mt-0">
+                                {/* Base Info */}
+                                <div className="space-y-4">
+                                    <SectionHeader title="Base Configuration" />
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="service-name" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                                        Service Identifier
-                                    </Label>
-                                    <Input
-                                        id="service-name"
-                                        value={service.name}
-                                        onChange={(e) => updateService(service.id, { name: e.target.value.replace(/[^a-z0-9_-]/g, '_').toLowerCase() })}
-                                        placeholder="e.g. web_app"
-                                        className="font-mono text-sm bg-muted/30"
-                                    />
-                                    <p className="text-[10px] text-muted-foreground italic">Must be alphanumeric with underscores/hyphens.</p>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-1.5">
+                                            <Label htmlFor="service-name" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                Service Identifier
+                                            </Label>
+                                            <Tooltip>
+                                                <TooltipTrigger type="button" tabIndex={-1} className="cursor-default">
+                                                    <Info className="h-3.5 w-3.5 text-muted-foreground/50 hover:text-foreground transition-colors" />
+                                                </TooltipTrigger>
+                                                <TooltipContent className="max-w-[250px] text-xs font-normal normal-case tracking-normal">
+                                                    <p>The unique name used to identify this service in the Docker network. Must be alphanumeric with underscores/hyphens.</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                        <Input
+                                            id="service-name"
+                                            value={service.name}
+                                            onChange={(e) => updateService(service.id, { name: e.target.value.replace(/[^a-z0-9_-]/g, '_').toLowerCase() })}
+                                            placeholder="e.g. web_app"
+                                            className="font-mono text-sm bg-muted/30"
+                                        />
+                                        <p className="text-[10px] text-muted-foreground italic">Must be alphanumeric with underscores/hyphens.</p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-1.5">
+                                            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                Docker Image
+                                            </Label>
+                                            <Tooltip>
+                                                <TooltipTrigger type="button" tabIndex={-1} className="cursor-default">
+                                                    <Info className="h-3.5 w-3.5 text-muted-foreground/50 hover:text-foreground transition-colors" />
+                                                </TooltipTrigger>
+                                                <TooltipContent className="max-w-[250px] text-xs font-normal normal-case tracking-normal">
+                                                    <p>The Docker container image and tag used to run this service (e.g., node:18-alpine, postgres:15).</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                        {template && template.availableVersions.length > 0 && (
+                                            <Select
+                                                value={service.image}
+                                                onValueChange={(v) => updateService(service.id, { image: v })}
+                                            >
+                                                <SelectTrigger className="font-mono text-sm bg-muted/30">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {template.availableVersions.map((v) => (
+                                                        <SelectItem key={v} value={v} className="font-mono">{v}</SelectItem>
+                                                    ))}
+                                                    <SelectItem value="custom">Custom image...</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+
+                                        {(!template?.availableVersions.length || service.image === 'custom') && (
+                                            <Input
+                                                value={service.image === 'custom' ? '' : service.image}
+                                                onChange={(e) => updateService(service.id, { image: e.target.value })}
+                                                placeholder="image:tag"
+                                                className="font-mono text-sm bg-muted/30 mt-2"
+                                            />
+                                        )}
+                                    </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                                        Docker Image
-                                    </Label>
-                                    {template && template.availableVersions.length > 0 && (
-                                        <Select
-                                            value={service.image}
-                                            onValueChange={(v) => updateService(service.id, { image: v })}
+                                <Separator className="opacity-50" />
+
+                                {/* Dependencies */}
+                                <div className="space-y-4">
+                                    <SectionHeader
+                                        title="Dependencies"
+                                        icon={<Link size={13} />}
+                                        tooltip="Defines startup order. These services will be started before this container."
+                                    />
+                                    <DependsOnSelector service={service} services={services} onUpdate={updateService} />
+                                </div>
+
+                                <Separator className="opacity-50" />
+
+                                {/* Command */}
+                                <div className="space-y-4">
+                                    <SectionHeader
+                                        title="Startup Command"
+                                        icon={<Terminal size={13} />}
+                                        tooltip="Override the default command specified in the image. e.g. npm run dev"
+                                    />
+                                    <div className="space-y-2">
+                                        <Input
+                                            value={service.command || ''}
+                                            onChange={(e) => updateService(service.id, { command: e.target.value || undefined })}
+                                            placeholder="e.g. npm start -- --watch"
+                                            className="font-mono text-sm bg-muted/30"
+                                        />
+                                    </div>
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="env" className="space-y-8 mt-0">
+                                {/* Ports */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <SectionHeader
+                                            title="Port Mappings"
+                                            icon={<Globe size={13} />}
+                                            tooltip="Map host machine ports to container ports to make the service accessible externally."
+                                        />
+                                        <Badge variant="outline" className="text-[10px]">{service.ports.length}</Badge>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {service.ports.map((port, i) => (
+                                            <PortRow
+                                                key={i}
+                                                port={port}
+                                                onChange={(updated) => {
+                                                    const ports = [...service.ports];
+                                                    ports[i] = updated;
+                                                    updateService(service.id, { ports });
+                                                }}
+                                                onRemove={() => {
+                                                    const ports = service.ports.filter((_, idx) => idx !== i);
+                                                    updateService(service.id, { ports });
+                                                }}
+                                            />
+                                        ))}
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full border-dashed h-9 bg-background/50"
+                                            onClick={() =>
+                                                updateService(service.id, {
+                                                    ports: [...service.ports, { host: 8080, container: 8080 }],
+                                                })
+                                            }
                                         >
-                                            <SelectTrigger className="font-mono text-sm bg-muted/30">
+                                            <Plus size={14} className="mr-2" />
+                                            Add Port Mapping
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <Separator className="opacity-50" />
+
+                                {/* Env Vars */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <SectionHeader
+                                            title="Environment Variables"
+                                            icon={<Terminal size={13} />}
+                                            tooltip="Set environment variables used by the container at runtime."
+                                        />
+                                        <Badge variant="outline" className="text-[10px]">{service.environment.length}</Badge>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {service.environment.map((env, i) => (
+                                            <EnvVarRow
+                                                key={i}
+                                                envVar={env}
+                                                onChange={(updated) => {
+                                                    const environment = [...service.environment];
+                                                    environment[i] = updated;
+                                                    updateService(service.id, { environment });
+                                                }}
+                                                onRemove={() => {
+                                                    const environment = service.environment.filter((_, idx) => idx !== i);
+                                                    updateService(service.id, { environment });
+                                                }}
+                                            />
+                                        ))}
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full border-dashed h-9 bg-background/50"
+                                            onClick={() =>
+                                                updateService(service.id, {
+                                                    environment: [...service.environment, { key: '', value: '', isSecret: false }],
+                                                })
+                                            }
+                                        >
+                                            <Plus size={14} className="mr-2" />
+                                            Add Variable
+                                        </Button>
+                                    </div>
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="advanced" className="space-y-8 mt-0">
+                                {/* Volumes */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <SectionHeader
+                                            title="Storage Volumes"
+                                            icon={<HardDrive size={13} />}
+                                            tooltip="Mount host paths or named volumes into the container for persistent storage."
+                                        />
+                                        <Badge variant="outline" className="text-[10px]">{service.volumes.length}</Badge>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {service.volumes.map((vol, i) => (
+                                            <VolumeRow
+                                                key={i}
+                                                volume={vol}
+                                                onChange={(updated) => {
+                                                    const volumes = [...service.volumes];
+                                                    volumes[i] = updated;
+                                                    updateService(service.id, { volumes });
+                                                }}
+                                                onRemove={() => {
+                                                    const volumes = service.volumes.filter((_, idx) => idx !== i);
+                                                    updateService(service.id, { volumes });
+                                                }}
+                                            />
+                                        ))}
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full border-dashed h-9 bg-background/50"
+                                            onClick={() =>
+                                                updateService(service.id, {
+                                                    volumes: [...service.volumes, { host: './data', container: '/app/data' }],
+                                                })
+                                            }
+                                        >
+                                            <Plus size={14} className="mr-2" />
+                                            Add Data Volume
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <Separator className="opacity-50" />
+
+                                {/* Networks */}
+                                <div className="space-y-4">
+                                    <SectionHeader
+                                        title="Networking"
+                                        icon={<Network size={13} />}
+                                        tooltip="Connect the container to Docker networks for inter-container communication."
+                                    />
+                                    <div className="space-y-3">
+                                        {service.networks.map((net, i) => (
+                                            <div key={i} className="flex items-center gap-2">
+                                                <Input
+                                                    value={net}
+                                                    onChange={(e) => {
+                                                        const networks = [...service.networks];
+                                                        networks[i] = e.target.value;
+                                                        updateService(service.id, { networks });
+                                                    }}
+                                                    placeholder="network-name"
+                                                    className="font-mono text-sm bg-muted/30 h-9"
+                                                />
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/5 shrink-0"
+                                                    onClick={() => {
+                                                        const networks = service.networks.filter((_, idx) => idx !== i);
+                                                        updateService(service.id, { networks });
+                                                    }}
+                                                >
+                                                    <Trash2 size={14} />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full border-dashed h-9 bg-background/50"
+                                            onClick={() =>
+                                                updateService(service.id, { networks: [...service.networks, 'app-network'] })
+                                            }
+                                        >
+                                            <Plus size={14} className="mr-2" />
+                                            Add Network
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <Separator className="opacity-50" />
+
+                                {/* Restart Policy */}
+                                <div className="space-y-4">
+                                    <SectionHeader
+                                        title="Lifecycle Management"
+                                        icon={<RotateCcw size={13} />}
+                                        tooltip="Configure the restart policy for the container in case of failures."
+                                    />
+                                    <div className="space-y-2">
+                                        <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                                            Restart Policy
+                                        </Label>
+                                        <Select
+                                            value={service.restart || 'no'}
+                                            onValueChange={(v) => updateService(service.id, { restart: v as Service['restart'] })}
+                                        >
+                                            <SelectTrigger className="text-sm bg-muted/30">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {template.availableVersions.map((v) => (
-                                                    <SelectItem key={v} value={v} className="font-mono">{v}</SelectItem>
-                                                ))}
-                                                <SelectItem value="custom">Custom image...</SelectItem>
+                                                <SelectItem value="no">no (default)</SelectItem>
+                                                <SelectItem value="always">always</SelectItem>
+                                                <SelectItem value="on-failure">on-failure</SelectItem>
+                                                <SelectItem value="unless-stopped">unless-stopped</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                    )}
-
-                                    {(!template?.availableVersions.length || service.image === 'custom') && (
-                                        <Input
-                                            value={service.image === 'custom' ? '' : service.image}
-                                            onChange={(e) => updateService(service.id, { image: e.target.value })}
-                                            placeholder="image:tag"
-                                            className="font-mono text-sm bg-muted/30 mt-2"
-                                        />
-                                    )}
+                                    </div>
                                 </div>
-                            </div>
-
-                            <Separator className="opacity-50" />
-
-                            {/* Dependencies */}
-                            <div className="space-y-4">
-                                <SectionHeader title="Dependencies" icon={<Link size={13} />} />
-                                <DependsOnSelector service={service} services={services} onUpdate={updateService} />
-                            </div>
-
-                            <Separator className="opacity-50" />
-
-                            {/* Command */}
-                            <div className="space-y-4">
-                                <SectionHeader title="Startup Command" icon={<Terminal size={13} />} />
-                                <div className="space-y-2">
-                                    <Input
-                                        value={service.command || ''}
-                                        onChange={(e) => updateService(service.id, { command: e.target.value || undefined })}
-                                        placeholder="e.g. npm start -- --watch"
-                                        className="font-mono text-sm bg-muted/30"
-                                    />
-                                </div>
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value="env" className="space-y-8 mt-0">
-                            {/* Ports */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <SectionHeader title="Port Mappings" icon={<Globe size={13} />} />
-                                    <Badge variant="outline" className="text-[10px]">{service.ports.length}</Badge>
-                                </div>
-                                <div className="space-y-3">
-                                    {service.ports.map((port, i) => (
-                                        <PortRow
-                                            key={i}
-                                            port={port}
-                                            onChange={(updated) => {
-                                                const ports = [...service.ports];
-                                                ports[i] = updated;
-                                                updateService(service.id, { ports });
-                                            }}
-                                            onRemove={() => {
-                                                const ports = service.ports.filter((_, idx) => idx !== i);
-                                                updateService(service.id, { ports });
-                                            }}
-                                        />
-                                    ))}
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="w-full border-dashed h-9 bg-background/50"
-                                        onClick={() =>
-                                            updateService(service.id, {
-                                                ports: [...service.ports, { host: 8080, container: 8080 }],
-                                            })
-                                        }
-                                    >
-                                        <Plus size={14} className="mr-2" />
-                                        Add Port Mapping
-                                    </Button>
-                                </div>
-                            </div>
-
-                            <Separator className="opacity-50" />
-
-                            {/* Env Vars */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <SectionHeader title="Environment Variables" icon={<Terminal size={13} />} />
-                                    <Badge variant="outline" className="text-[10px]">{service.environment.length}</Badge>
-                                </div>
-                                <div className="space-y-3">
-                                    {service.environment.map((env, i) => (
-                                        <EnvVarRow
-                                            key={i}
-                                            envVar={env}
-                                            onChange={(updated) => {
-                                                const environment = [...service.environment];
-                                                environment[i] = updated;
-                                                updateService(service.id, { environment });
-                                            }}
-                                            onRemove={() => {
-                                                const environment = service.environment.filter((_, idx) => idx !== i);
-                                                updateService(service.id, { environment });
-                                            }}
-                                        />
-                                    ))}
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="w-full border-dashed h-9 bg-background/50"
-                                        onClick={() =>
-                                            updateService(service.id, {
-                                                environment: [...service.environment, { key: '', value: '', isSecret: false }],
-                                            })
-                                        }
-                                    >
-                                        <Plus size={14} className="mr-2" />
-                                        Add Variable
-                                    </Button>
-                                </div>
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value="advanced" className="space-y-8 mt-0">
-                            {/* Volumes */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <SectionHeader title="Storage Volumes" icon={<HardDrive size={13} />} />
-                                    <Badge variant="outline" className="text-[10px]">{service.volumes.length}</Badge>
-                                </div>
-                                <div className="space-y-3">
-                                    {service.volumes.map((vol, i) => (
-                                        <VolumeRow
-                                            key={i}
-                                            volume={vol}
-                                            onChange={(updated) => {
-                                                const volumes = [...service.volumes];
-                                                volumes[i] = updated;
-                                                updateService(service.id, { volumes });
-                                            }}
-                                            onRemove={() => {
-                                                const volumes = service.volumes.filter((_, idx) => idx !== i);
-                                                updateService(service.id, { volumes });
-                                            }}
-                                        />
-                                    ))}
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="w-full border-dashed h-9 bg-background/50"
-                                        onClick={() =>
-                                            updateService(service.id, {
-                                                volumes: [...service.volumes, { host: './data', container: '/app/data' }],
-                                            })
-                                        }
-                                    >
-                                        <Plus size={14} className="mr-2" />
-                                        Add Data Volume
-                                    </Button>
-                                </div>
-                            </div>
-
-                            <Separator className="opacity-50" />
-
-                            {/* Networks */}
-                            <div className="space-y-4">
-                                <SectionHeader title="Networking" icon={<Network size={13} />} />
-                                <div className="space-y-3">
-                                    {service.networks.map((net, i) => (
-                                        <div key={i} className="flex items-center gap-2">
-                                            <Input
-                                                value={net}
-                                                onChange={(e) => {
-                                                    const networks = [...service.networks];
-                                                    networks[i] = e.target.value;
-                                                    updateService(service.id, { networks });
-                                                }}
-                                                placeholder="network-name"
-                                                className="font-mono text-sm bg-muted/30 h-9"
-                                            />
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/5 shrink-0"
-                                                onClick={() => {
-                                                    const networks = service.networks.filter((_, idx) => idx !== i);
-                                                    updateService(service.id, { networks });
-                                                }}
-                                            >
-                                                <Trash2 size={14} />
-                                            </Button>
-                                        </div>
-                                    ))}
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="w-full border-dashed h-9 bg-background/50"
-                                        onClick={() =>
-                                            updateService(service.id, { networks: [...service.networks, 'app-network'] })
-                                        }
-                                    >
-                                        <Plus size={14} className="mr-2" />
-                                        Add Network
-                                    </Button>
-                                </div>
-                            </div>
-
-                            <Separator className="opacity-50" />
-
-                            {/* Restart Policy */}
-                            <div className="space-y-4">
-                                <SectionHeader title="Lifecycle Management" icon={<RotateCcw size={13} />} />
-                                <div className="space-y-2">
-                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                                        Restart Policy
-                                    </Label>
-                                    <Select
-                                        value={service.restart || 'no'}
-                                        onValueChange={(v) => updateService(service.id, { restart: v as Service['restart'] })}
-                                    >
-                                        <SelectTrigger className="text-sm bg-muted/30">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="no">no (default)</SelectItem>
-                                            <SelectItem value="always">always</SelectItem>
-                                            <SelectItem value="on-failure">on-failure</SelectItem>
-                                            <SelectItem value="unless-stopped">unless-stopped</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
-                </div>
-            </ScrollArea>
-        </aside>
+                            </TabsContent>
+                        </Tabs>
+                    </div>
+                </ScrollArea>
+            </aside>
+        </TooltipProvider>
     );
 }
 
 // ---- Sub-components ----
 
-function SectionHeader({ title, icon }: { title: string; icon?: React.ReactNode }) {
+function SectionHeader({ title, icon, tooltip }: { title: string; icon?: React.ReactNode; tooltip?: string }) {
     return (
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-1.5 mb-1">
             {icon && <span className="text-muted-foreground/60">{icon}</span>}
             <h3 className="text-[11px] font-bold uppercase tracking-widest text-foreground">
                 {title}
             </h3>
+            {tooltip && (
+                <Tooltip>
+                    <TooltipTrigger type="button" tabIndex={-1} className="cursor-default">
+                        <Info className="h-3.5 w-3.5 text-muted-foreground/50 hover:text-foreground transition-colors" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[250px] text-xs font-normal normal-case tracking-normal">
+                        <p>{tooltip}</p>
+                    </TooltipContent>
+                </Tooltip>
+            )}
         </div>
     );
 }
