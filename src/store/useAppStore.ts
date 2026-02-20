@@ -283,6 +283,28 @@ export const useAppStore = create<AppState>()(
             }),
             {
                 name: 'dockerdraw-store',
+                storage: {
+                    getItem: (name: string) => {
+                        try {
+                            const str = localStorage.getItem(name);
+                            return str ? JSON.parse(str) : null;
+                        } catch {
+                            // Corrupted data — wipe and start fresh
+                            try { localStorage.removeItem(name); } catch { /* ignore */ }
+                            return null;
+                        }
+                    },
+                    setItem: (name: string, value: unknown) => {
+                        try {
+                            localStorage.setItem(name, JSON.stringify(value));
+                        } catch {
+                            // Quota exceeded or unavailable — silently skip
+                        }
+                    },
+                    removeItem: (name: string) => {
+                        try { localStorage.removeItem(name); } catch { /* ignore */ }
+                    },
+                },
                 partialize: (state) => ({
                     savedProjects: state.savedProjects,
                 }),

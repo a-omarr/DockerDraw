@@ -13,6 +13,7 @@ import {
     Menu,
     PanelLeftOpen,
     PanelLeftClose,
+    HelpCircle,
 } from 'lucide-react';
 import {
     SiDocker,
@@ -32,7 +33,7 @@ import {
 import { useStore } from 'zustand';
 import { useIsMobile } from '@/hooks/useMediaQuery';
 
-export function Header() {
+export function Header({ onStartTour }: { onStartTour?: () => void }) {
     const {
         projectName,
         setProjectName,
@@ -278,6 +279,19 @@ export function Header() {
                                 ⌘K
                             </kbd>
                         </Button>
+
+                        {onStartTour && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 gap-2 text-muted-foreground"
+                                onClick={onStartTour}
+                                title="Take a tour"
+                            >
+                                <HelpCircle size={14} />
+                                <span className="hidden lg:inline">Tour</span>
+                            </Button>
+                        )}
                     </>
                 )}
 
@@ -322,6 +336,7 @@ export function Header() {
                     size="sm"
                     className="h-9 gap-2 ml-1 sm:ml-2 shadow-sm"
                     onClick={handleDownload}
+                    data-tour="download-btn"
                 >
                     <Download size={14} />
                     <span className="hidden sm:inline">Download</span>

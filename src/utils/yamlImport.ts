@@ -1,7 +1,37 @@
 import yaml from 'js-yaml';
 import type { Service, EnvVar, Port, Volume, ComposeConfig } from '../types';
 
+const MAX_YAML_SIZE = 100 * 1024; // 100 KB
+const MAX_SERVICES = 50;
+const MAX_NAME_LENGTH = 64;
+
+/** Strip HTML tags (prevents XSS via service names rendered into the DOM) */
+function stripHtml(str: string): string {
+    return str.replace(/<[^>]*>/g, '');
+}
+
+/** Sanitize a service name to safe characters only */
+function sanitizeName(raw: string): string {
+    const stripped = stripHtml(raw);
+    const safe = stripped.replace(/[^a-zA-Z0-9_.-]/g, '_');
+    return safe.slice(0, MAX_NAME_LENGTH) || 'service';
+}
+
+/** Sanitize any string value (env vars, commands, image names) */
+function sanitizeValue(raw: unknown): string {
+    const str = String(raw ?? '');
+    // Remove <script> blocks and stray HTML tags
+    return str
+        .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+        .replace(/<[^>]*>/g, '');
+}
+
 export function parseYAMLToServices(yamlString: string): { services: Service[]; network: string } {
+    // ── Size guard ──────────────────────────────────
+    if (yamlString.length > MAX_YAML_SIZE) {
+        throw new Error(`YAML input is too large (${(yamlString.length / 1024).toFixed(0)} KB). Maximum allowed is ${MAX_YAML_SIZE / 1024} KB.`);
+    }
+
     let config: ComposeConfig;
     try {
         config = yaml.load(yamlString) as ComposeConfig;
@@ -11,6 +41,12 @@ export function parseYAMLToServices(yamlString: string): { services: Service[]; 
 
     if (!config || typeof config !== 'object' || !config.services) {
         throw new Error('No services found in the YAML file.');
+    }
+
+    // ── Service count guard ─────────────────────────
+    const serviceKeys = Object.keys(config.services);
+    if (serviceKeys.length > MAX_SERVICES) {
+        throw new Error(`Too many services (${serviceKeys.length}). Maximum allowed is ${MAX_SERVICES}.`);
     }
 
     const networkName =
@@ -35,7 +71,7 @@ export function parseYAMLToServices(yamlString: string): { services: Service[]; 
                 svc.environment.forEach((e) => {
                     const idx = e.indexOf('=');
                     if (idx !== -1) {
-                        environment.push({ key: e.slice(0, idx), value: e.slice(idx + 1), isSecret: false });
+                        environment.push({ key: sanitizeValue(e.slice(0, idx)), value: sanitizeValue(e.slice(idx + 1)), isSecret: false });
                     }
                 });
             } else {
@@ -44,7 +80,7 @@ export function parseYAMLToServices(yamlString: string): { services: Service[]; 
                         k.toLowerCase().includes('password') ||
                         k.toLowerCase().includes('secret') ||
                         k.toLowerCase().includes('key');
-                    environment.push({ key: k, value: String(v), isSecret });
+                    environment.push({ key: sanitizeValue(k), value: sanitizeValue(v), isSecret });
                 });
             }
         }
@@ -55,12 +91,12 @@ export function parseYAMLToServices(yamlString: string): { services: Service[]; 
             const parts = str.split(':');
             if (parts.length >= 2) {
                 return {
-                    host: parts[0],
-                    container: parts[1],
+                    host: sanitizeValue(parts[0]),
+                    container: sanitizeValue(parts[1]),
                     mode: parts[2] === 'ro' ? 'ro' : 'rw',
                 };
             }
-            return { host: str, container: str };
+            return { host: sanitizeValue(str), container: sanitizeValue(str) };
         });
 
         // Parse depends_on
@@ -92,15 +128,15 @@ export function parseYAMLToServices(yamlString: string): { services: Service[]; 
 
         return {
             id: crypto.randomUUID(),
-            name,
+            name: sanitizeName(name),
             templateId,
-            image: svc.image ? String(svc.image) : 'unknown:latest',
+            image: svc.image ? sanitizeValue(svc.image) : 'unknown:latest',
             ports,
             environment,
             volumes,
             networks,
             dependsOn,
-            command: svc.command ? String(svc.command) : undefined,
+            command: svc.command ? sanitizeValue(svc.command) : undefined,
             restart: (svc.restart as Service['restart']) || 'no',
         };
     });

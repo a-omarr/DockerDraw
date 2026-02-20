@@ -13,6 +13,7 @@ import { StatusBar } from './components/StatusBar';
 import { useAppStore } from './store/useAppStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useIsMobile, useIsTablet } from './hooks/useMediaQuery';
+import { OnboardingTour, useOnboardingTour } from './components/OnboardingTour';
 
 export default function App() {
   const {
@@ -33,6 +34,9 @@ export default function App() {
   // Global keyboard shortcuts
   useKeyboardShortcuts();
 
+  // Onboarding tour
+  const { isActive: tourActive, startTour, endTour } = useOnboardingTour();
+
   // Initial YAML generation on mount
   useEffect(() => {
     refreshDerived();
@@ -45,30 +49,30 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">
       {/* Top nav */}
-      <Header />
+      <Header onStartTour={startTour} />
 
       {/* Main layout */}
       <div className="flex flex-1 overflow-hidden relative">
         {/* Left: service library — sidebar on desktop, overlay on tablet/mobile */}
-        {showLibrarySidebar && <ServiceLibrary />}
+        {showLibrarySidebar && <div data-tour="service-library"><ServiceLibrary /></div>}
         {showLibraryOverlay && (
           <>
             <div
               className="fixed inset-0 bg-black/40 z-30 lg:hidden"
               onClick={() => useAppStore.getState().toggleLibrary()}
             />
-            <div className="fixed left-0 top-14 bottom-7 w-72 z-40 lg:hidden animate-slide-in-left">
+            <div className="fixed left-0 top-14 bottom-7 w-72 z-40 lg:hidden animate-slide-in-left" data-tour="service-library">
               <ServiceLibrary />
             </div>
           </>
         )}
 
         {/* Center: canvas */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0" data-tour="canvas">
           <Canvas />
 
           {/* Bottom: YAML preview — hidden on mobile */}
-          {showYAMLPanel && !isMobile && <YAMLPreview />}
+          {showYAMLPanel && !isMobile && <div data-tour="yaml-preview"><YAMLPreview /></div>}
         </div>
 
         {/* Right: config panel — inline on desktop, overlay on tablet/mobile */}
@@ -96,6 +100,7 @@ export default function App() {
       {showLoadModal && <LoadModal />}
       {showSuccessModal && <DownloadSuccessModal />}
       <CommandPalette />
+      <OnboardingTour isActive={tourActive} onEnd={endTour} />
     </div>
   );
 }
