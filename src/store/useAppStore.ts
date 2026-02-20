@@ -61,6 +61,7 @@ interface AppState {
     showLoadModal: boolean;
     showSuccessModal: boolean;
     showCommandPalette: boolean;
+    showAddServiceModal: boolean;
 
     // Derived
     yamlOutput: string;
@@ -91,6 +92,7 @@ interface AppState {
     setShowLoadModal: (show: boolean) => void;
     setShowSuccessModal: (show: boolean) => void;
     setShowCommandPalette: (show: boolean) => void;
+    setShowAddServiceModal: (show: boolean) => void;
 
     saveProject: (name: string) => void;
     loadProject: (id: string) => void;
@@ -120,6 +122,7 @@ export const useAppStore = create<AppState>()(
                 showLoadModal: false,
                 showSuccessModal: false,
                 showCommandPalette: false,
+                showAddServiceModal: false,
 
                 yamlOutput: '',
                 warnings: [],
@@ -220,6 +223,7 @@ export const useAppStore = create<AppState>()(
                 setShowLoadModal: (show) => set({ showLoadModal: show }),
                 setShowSuccessModal: (show) => set({ showSuccessModal: show }),
                 setShowCommandPalette: (show) => set({ showCommandPalette: show }),
+                setShowAddServiceModal: (show) => set({ showAddServiceModal: show }),
 
                 saveProject: (name) => {
                     const { services, networkName, environmentPreset, savedProjects } = get();

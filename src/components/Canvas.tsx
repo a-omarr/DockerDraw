@@ -142,7 +142,7 @@ export function Canvas() {
                                         variant="outline"
                                         size="sm"
                                         className="h-8 gap-2 rounded-full border-dashed bg-transparent hover:bg-white transition-all shadow-none"
-                                        onClick={() => useAppStore.getState().setShowTemplateGallery(true)}
+                                        onClick={() => useAppStore.getState().setShowAddServiceModal(true)}
                                     >
                                         <Plus size={14} />
                                         Add another service

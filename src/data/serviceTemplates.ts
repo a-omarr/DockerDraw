@@ -16,7 +16,8 @@ import {
     SiPhpmyadmin,
     SiApache,
     SiPhp,
-    SiReact
+    SiReact,
+    SiSupabase
 } from 'react-icons/si';
 
 export const serviceTemplates: ServiceTemplate[] = [
@@ -370,6 +371,33 @@ export const serviceTemplates: ServiceTemplate[] = [
         defaultBuildContext: './frontend',
         defaultDockerfile: 'Dockerfile',
         defaultBuildArgs: { NODE_ENV: 'production' },
+    },
+    {
+        id: 'supabase',
+        name: 'Supabase',
+        emoji: '⚡',
+        Icon: SiSupabase,
+        category: 'app',
+        description: 'Open-source Firebase alternative — Postgres, Auth, APIs, Realtime, Storage',
+        defaultImage: 'supabase/postgres:15.6.1.145',
+        availableVersions: ['supabase/postgres:15.6.1.145', 'supabase/postgres:15.1.1.78'],
+        defaultPorts: [
+            { host: 5432, container: 5432 },
+            { host: 8000, container: 8000 },
+        ],
+        defaultEnvironment: [
+            { key: 'POSTGRES_DB', value: 'supabase', isSecret: false },
+            { key: 'POSTGRES_USER', value: 'supabase_admin', isSecret: false },
+            { key: 'POSTGRES_PASSWORD', value: 'changeme', isSecret: true },
+            { key: 'JWT_SECRET', value: 'your-super-secret-jwt-token-with-at-least-32-characters', isSecret: true },
+            { key: 'ANON_KEY', value: 'your-anon-key', isSecret: true },
+            { key: 'SERVICE_ROLE_KEY', value: 'your-service-role-key', isSecret: true },
+        ],
+        defaultVolumes: [{ host: './data/supabase', container: '/var/lib/postgresql/data' }],
+        defaultNetwork: 'app_network',
+        tags: ['backend', 'postgres', 'auth', 'realtime', 'baas'],
+        color: '#3ecf8e',
+        glowColor: 'rgba(62, 207, 142, 0.4)',
     }
 ];
 

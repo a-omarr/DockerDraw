@@ -11,6 +11,7 @@ import { DownloadSuccessModal } from './components/DownloadSuccessModal';
 import { CommandPalette } from './components/CommandPalette';
 import { StatusBar } from './components/StatusBar';
 import { LoadingScreen } from './components/LoadingScreen';
+import { AddServiceModal } from './components/AddServiceModal';
 import { useAppStore } from './store/useAppStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useIsMobile, useIsTablet } from './hooks/useMediaQuery';
@@ -35,6 +36,8 @@ export default function App() {
     showImportModal,
     showSaveModal,
     showLoadModal,
+    showAddServiceModal,
+    setShowAddServiceModal,
     showSuccessModal,
     selectedServiceId,
     refreshDerived,
@@ -113,6 +116,7 @@ export default function App() {
       {showImportModal && <ImportModal />}
       {showSaveModal && <SaveModal />}
       {showLoadModal && <LoadModal />}
+      <AddServiceModal open={showAddServiceModal} onOpenChange={setShowAddServiceModal} />
       {showSuccessModal && <DownloadSuccessModal />}
       <CommandPalette />
       <OnboardingTour isActive={tourActive} onEnd={endTour} />
