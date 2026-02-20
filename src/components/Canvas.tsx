@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Plus, Layers, Trash2 } from 'lucide-react';
+import { Plus, Layers, Trash2, Code } from 'lucide-react';
+import { parseYAMLToServices } from '../utils/yamlImport';
+import { EXAMPLE_COMPOSE } from '../data/exampleCompose';
 import {
     DndContext,
     closestCenter,
@@ -163,7 +165,17 @@ export function Canvas() {
 }
 
 function EmptyCanvas() {
-    const { setShowTemplateGallery, addService } = useAppStore();
+    const { setShowTemplateGallery, importFromYAML } = useAppStore();
+
+    const handleAddExample = () => {
+        try {
+            const { services, network } = parseYAMLToServices(EXAMPLE_COMPOSE);
+            importFromYAML(services, network);
+        } catch (error) {
+            console.error('Failed to load example compose:', error);
+        }
+    };
+
     return (
         <div className="flex-1 flex flex-col items-center justify-center h-full py-12 sm:py-20 px-4 sm:px-6">
             <div className="w-16 h-16 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center mb-6 shadow-sm">
@@ -188,10 +200,10 @@ function EmptyCanvas() {
                     variant="outline"
                     size="lg"
                     className="gap-2 px-6 bg-white"
-                    onClick={() => addService('postgresql')}
+                    onClick={handleAddExample}
                 >
-                    <Plus size={18} />
-                    Quick Add PostgreSQL
+                    <Code size={18} />
+                    Add Example Code
                 </Button>
             </div>
         </div>
