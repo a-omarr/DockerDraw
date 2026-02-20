@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Header } from './components/Header';
 import { ServiceLibrary } from './components/ServiceLibrary';
 import { Canvas } from './components/Canvas';
@@ -10,12 +10,24 @@ import { SaveModal, LoadModal } from './components/SaveLoadModals';
 import { DownloadSuccessModal } from './components/DownloadSuccessModal';
 import { CommandPalette } from './components/CommandPalette';
 import { StatusBar } from './components/StatusBar';
+import { LoadingScreen } from './components/LoadingScreen';
 import { useAppStore } from './store/useAppStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useIsMobile, useIsTablet } from './hooks/useMediaQuery';
 import { OnboardingTour, useOnboardingTour } from './components/OnboardingTour';
 
+function useHydration() {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    // The persist middleware hydrates synchronously from localStorage
+    // on store creation. By the time this effect runs, the store is ready.
+    setHydrated(true);
+  }, []);
+  return hydrated;
+}
+
 export default function App() {
+  const hydrated = useHydration();
   const {
     showYAMLPanel,
     showLibrary,
@@ -41,6 +53,9 @@ export default function App() {
   useEffect(() => {
     refreshDerived();
   }, []);
+
+  // Show loading screen while store hydrates from localStorage
+  if (!hydrated) return <LoadingScreen />;
 
   // On mobile/tablet, auto-hide panels
   const showLibrarySidebar = showLibrary && !isTablet;
