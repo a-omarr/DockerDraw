@@ -20,7 +20,7 @@ const TOUR_STEPS: TourStep[] = [
         target: '[data-tour="canvas"]',
         title: 'Your Canvas',
         description: 'Services you add appear here as cards. Click a card to configure it, or drag to reorder.',
-        position: 'bottom',
+        position: 'top',
     },
     {
         target: '[data-tour="yaml-preview"]',
