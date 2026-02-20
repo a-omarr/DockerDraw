@@ -149,7 +149,7 @@ function ServiceLibraryCard({
                     )}
                 </div>
                 <p className="text-[10px] text-muted-foreground truncate font-mono">
-                    {template.defaultImage.split(':')[0]}
+                    {template.defaultBuildContext ? 'Dockerfile' : template.defaultImage.split(':')[0]}
                 </p>
             </div>
             <div className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity">

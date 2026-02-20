@@ -50,6 +50,17 @@ export function validateServices(services: Service[]): ValidationWarning[] {
             });
         }
 
+        // Build service with empty build context
+        if (service.buildContext !== undefined && service.buildContext.trim() === '') {
+            warnings.push({
+                id: `empty-build-context-${service.id}`,
+                type: 'error',
+                serviceId: service.id,
+                message: `Service "${service.name}": Build context path is empty. Set a path like ./frontend.`,
+                action: 'Set a build context directory',
+            });
+        }
+
         // Service with no network
         if (service.networks.length === 0) {
             warnings.push({

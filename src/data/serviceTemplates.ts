@@ -15,7 +15,8 @@ import {
     SiMariadb,
     SiPhpmyadmin,
     SiApache,
-    SiPhp
+    SiPhp,
+    SiReact
 } from 'react-icons/si';
 
 export const serviceTemplates: ServiceTemplate[] = [
@@ -349,6 +350,26 @@ export const serviceTemplates: ServiceTemplate[] = [
         tags: ['app', 'php', 'fpm'],
         color: '#777bb4',
         glowColor: 'rgba(119, 123, 180, 0.4)',
+    },
+    {
+        id: 'frontend',
+        name: 'Frontend Build',
+        emoji: '⚛️',
+        Icon: SiReact,
+        category: 'app',
+        description: 'Build a frontend app from a Dockerfile (React, Vue, Vite, etc.)',
+        defaultImage: 'custom',
+        availableVersions: [],
+        defaultPorts: [{ host: 8080, container: 80 }],
+        defaultEnvironment: [],
+        defaultVolumes: [],
+        defaultNetwork: 'app_network',
+        tags: ['frontend', 'ui', 'build'],
+        color: '#61dafb',
+        glowColor: 'rgba(97, 218, 251, 0.4)',
+        defaultBuildContext: './frontend',
+        defaultDockerfile: 'Dockerfile',
+        defaultBuildArgs: { NODE_ENV: 'production' },
     }
 ];
 

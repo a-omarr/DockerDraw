@@ -12,6 +12,7 @@ import {
     Terminal,
     RotateCcw,
     Info,
+    Hammer,
 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import type { Service, Port, Volume, EnvVar } from '../types';
@@ -127,44 +128,227 @@ export function ConfigPanel() {
                                         <p className="text-[10px] text-muted-foreground italic">Must be alphanumeric with underscores/hyphens.</p>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-1.5">
-                                            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                Docker Image
-                                            </Label>
-                                            <Tooltip>
-                                                <TooltipTrigger type="button" tabIndex={-1} className="cursor-default">
-                                                    <Info className="h-3.5 w-3.5 text-muted-foreground/50 hover:text-foreground transition-colors" />
-                                                </TooltipTrigger>
-                                                <TooltipContent className="max-w-[250px] text-xs font-normal normal-case tracking-normal">
-                                                    <p>The Docker container image and tag used to run this service (e.g., node:18-alpine, postgres:15).</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </div>
-                                        {template && template.availableVersions.length > 0 && (
+                                    <div className="space-y-4 pt-2">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-1.5">
+                                                <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                    Deployment Source
+                                                </Label>
+                                                <Tooltip>
+                                                    <TooltipTrigger type="button" tabIndex={-1} className="cursor-default">
+                                                        <Info className="h-3.5 w-3.5 text-muted-foreground/50 hover:text-foreground transition-colors" />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent className="max-w-[250px] text-xs font-normal normal-case tracking-normal">
+                                                        <p>Choose how to run this service — either pull a pre-built image from a registry, or build it locally from a Dockerfile in your project.</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </div>
                                             <Select
-                                                value={service.image}
-                                                onValueChange={(v) => updateService(service.id, { image: v })}
+                                                value={service.buildContext ? 'build' : 'image'}
+                                                onValueChange={(v) => {
+                                                    if (v === 'build') {
+                                                        updateService(service.id, {
+                                                            buildContext: template?.defaultBuildContext || './app',
+                                                            image: 'custom',
+                                                            dockerfile: template?.defaultDockerfile || 'Dockerfile',
+                                                            buildTarget: template?.defaultBuildTarget || undefined,
+                                                            buildArgs: template?.defaultBuildArgs ? { ...template.defaultBuildArgs } : undefined,
+                                                        });
+                                                    } else {
+                                                        updateService(service.id, {
+                                                            buildContext: undefined,
+                                                            image: template?.defaultImage || 'ubuntu:latest',
+                                                            dockerfile: undefined,
+                                                            buildTarget: undefined,
+                                                            buildArgs: undefined,
+                                                        });
+                                                    }
+                                                }}
                                             >
-                                                <SelectTrigger className="font-mono text-sm bg-muted/30">
+                                                <SelectTrigger className="text-sm bg-muted/30">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {template.availableVersions.map((v) => (
-                                                        <SelectItem key={v} value={v} className="font-mono">{v}</SelectItem>
-                                                    ))}
-                                                    <SelectItem value="custom">Custom image...</SelectItem>
+                                                    <SelectItem value="image">Pre-built Image</SelectItem>
+                                                    <SelectItem value="build">Build from Source</SelectItem>
                                                 </SelectContent>
                                             </Select>
-                                        )}
+                                        </div>
 
-                                        {(!template?.availableVersions.length || service.image === 'custom') && (
-                                            <Input
-                                                value={service.image === 'custom' ? '' : service.image}
-                                                onChange={(e) => updateService(service.id, { image: e.target.value })}
-                                                placeholder="image:tag"
-                                                className="font-mono text-sm bg-muted/30 mt-2"
-                                            />
+                                        {!service.buildContext ? (
+                                            <div className="space-y-2 pt-2 animate-in fade-in duration-200">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                        Docker Image
+                                                    </Label>
+                                                    <Tooltip>
+                                                        <TooltipTrigger type="button" tabIndex={-1} className="cursor-default">
+                                                            <Info className="h-3.5 w-3.5 text-muted-foreground/50 hover:text-foreground transition-colors" />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent className="max-w-[250px] text-xs font-normal normal-case tracking-normal">
+                                                            <p>The Docker container image and tag used to run this service (e.g., node:18-alpine, postgres:15).</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </div>
+                                                {template && template.availableVersions.length > 0 && (
+                                                    <Select
+                                                        value={service.image}
+                                                        onValueChange={(v) => updateService(service.id, { image: v })}
+                                                    >
+                                                        <SelectTrigger className="font-mono text-sm bg-muted/30">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {template.availableVersions.map((v) => (
+                                                                <SelectItem key={v} value={v} className="font-mono">{v}</SelectItem>
+                                                            ))}
+                                                            <SelectItem value="custom">Custom image...</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
+
+                                                {(!template?.availableVersions.length || service.image === 'custom') && (
+                                                    <Input
+                                                        value={service.image === 'custom' ? '' : service.image}
+                                                        onChange={(e) => updateService(service.id, { image: e.target.value })}
+                                                        placeholder="image:tag"
+                                                        className="font-mono text-sm bg-muted/30 mt-2"
+                                                    />
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-2 pt-2 animate-in fade-in duration-200">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                        Build Context
+                                                    </Label>
+                                                    <Tooltip>
+                                                        <TooltipTrigger type="button" tabIndex={-1} className="cursor-default">
+                                                            <Info className="h-3.5 w-3.5 text-muted-foreground/50 hover:text-foreground transition-colors" />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent className="max-w-[250px] text-xs font-normal normal-case tracking-normal">
+                                                            <p>Path to a directory containing a Dockerfile. Usually relative to the docker-compose file (e.g., ./frontend).</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </div>
+                                                <Input
+                                                    value={service.buildContext}
+                                                    onChange={(e) => updateService(service.id, { buildContext: e.target.value })}
+                                                    placeholder="e.g. ./frontend"
+                                                    className="font-mono text-sm bg-muted/30"
+                                                />
+
+                                                {/* Dockerfile */}
+                                                <div className="space-y-2 pt-3">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                            Dockerfile
+                                                        </Label>
+                                                        <Tooltip>
+                                                            <TooltipTrigger type="button" tabIndex={-1} className="cursor-default">
+                                                                <Info className="h-3.5 w-3.5 text-muted-foreground/50 hover:text-foreground transition-colors" />
+                                                            </TooltipTrigger>
+                                                            <TooltipContent className="max-w-[250px] text-xs font-normal normal-case tracking-normal">
+                                                                <p>Name of the Dockerfile inside the build context. Defaults to "Dockerfile" if left empty.</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </div>
+                                                    <Input
+                                                        value={service.dockerfile || ''}
+                                                        onChange={(e) => updateService(service.id, { dockerfile: e.target.value || undefined })}
+                                                        placeholder="Dockerfile"
+                                                        className="font-mono text-sm bg-muted/30"
+                                                    />
+                                                </div>
+
+                                                {/* Target Stage */}
+                                                <div className="space-y-2 pt-3">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                            Target Stage
+                                                        </Label>
+                                                        <Tooltip>
+                                                            <TooltipTrigger type="button" tabIndex={-1} className="cursor-default">
+                                                                <Info className="h-3.5 w-3.5 text-muted-foreground/50 hover:text-foreground transition-colors" />
+                                                            </TooltipTrigger>
+                                                            <TooltipContent className="max-w-[250px] text-xs font-normal normal-case tracking-normal">
+                                                                <p>For multi-stage Dockerfiles, specify which stage to build (e.g., "production" or "development").</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </div>
+                                                    <Input
+                                                        value={service.buildTarget || ''}
+                                                        onChange={(e) => updateService(service.id, { buildTarget: e.target.value || undefined })}
+                                                        placeholder="e.g. production"
+                                                        className="font-mono text-sm bg-muted/30"
+                                                    />
+                                                </div>
+
+                                                {/* Build Args */}
+                                                <div className="space-y-3 pt-3">
+                                                    <div className="flex items-center justify-between">
+                                                        <SectionHeader
+                                                            title="Build Arguments"
+                                                            icon={<Hammer size={13} />}
+                                                            tooltip="Variables passed at build time via --build-arg. These are baked into the image."
+                                                        />
+                                                        <Badge variant="outline" className="text-[10px]">{Object.keys(service.buildArgs || {}).length}</Badge>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        {Object.entries(service.buildArgs || {}).map(([key, value]) => (
+                                                            <div key={key} className="flex items-center gap-2 p-2.5 rounded-lg border bg-muted/10 group">
+                                                                <Input
+                                                                    value={key}
+                                                                    onChange={(e) => {
+                                                                        const args = { ...service.buildArgs };
+                                                                        const val = args[key];
+                                                                        delete args[key];
+                                                                        args[e.target.value] = val;
+                                                                        updateService(service.id, { buildArgs: args });
+                                                                    }}
+                                                                    placeholder="ARG_NAME"
+                                                                    className="h-8 font-mono text-xs flex-1 uppercase"
+                                                                />
+                                                                <span className="text-muted-foreground/40 font-mono text-xs">=</span>
+                                                                <Input
+                                                                    value={value}
+                                                                    onChange={(e) => {
+                                                                        const args = { ...service.buildArgs };
+                                                                        args[key] = e.target.value;
+                                                                        updateService(service.id, { buildArgs: args });
+                                                                    }}
+                                                                    placeholder="value"
+                                                                    className="h-8 font-mono text-xs flex-1"
+                                                                />
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                                                    onClick={() => {
+                                                                        const args = { ...service.buildArgs };
+                                                                        delete args[key];
+                                                                        updateService(service.id, { buildArgs: Object.keys(args).length > 0 ? args : undefined });
+                                                                    }}
+                                                                >
+                                                                    <Trash2 size={13} />
+                                                                </Button>
+                                                            </div>
+                                                        ))}
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="w-full border-dashed h-9 bg-background/50"
+                                                            onClick={() => {
+                                                                const args = { ...(service.buildArgs || {}), '': '' };
+                                                                updateService(service.id, { buildArgs: args });
+                                                            }}
+                                                        >
+                                                            <Plus size={14} className="mr-2" />
+                                                            Add Build Arg
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
                                 </div>

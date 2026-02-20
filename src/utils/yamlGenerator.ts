@@ -24,7 +24,24 @@ export function generateDockerCompose(
         };
 
         if (service.buildContext) {
-            entry.build = service.buildContext;
+            const hasExtras = service.dockerfile || service.buildTarget || (service.buildArgs && Object.keys(service.buildArgs).length > 0);
+            if (hasExtras) {
+                const buildObj: { context: string; dockerfile?: string; target?: string; args?: Record<string, string> } = {
+                    context: service.buildContext,
+                };
+                if (service.dockerfile && service.dockerfile !== 'Dockerfile') {
+                    buildObj.dockerfile = service.dockerfile;
+                }
+                if (service.buildTarget) {
+                    buildObj.target = service.buildTarget;
+                }
+                if (service.buildArgs && Object.keys(service.buildArgs).length > 0) {
+                    buildObj.args = service.buildArgs;
+                }
+                entry.build = buildObj;
+            } else {
+                entry.build = service.buildContext;
+            }
             delete entry.image;
         }
 

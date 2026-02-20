@@ -47,6 +47,9 @@ export interface Service {
     healthCheck?: HealthCheck;
     resources?: ResourceLimits;
     buildContext?: string;
+    dockerfile?: string;
+    buildTarget?: string;
+    buildArgs?: Record<string, string>;
 }
 
 export interface ServiceTemplate {
@@ -65,6 +68,10 @@ export interface ServiceTemplate {
     tags: string[];
     color: string;
     glowColor: string;
+    defaultBuildContext?: string;
+    defaultDockerfile?: string;
+    defaultBuildTarget?: string;
+    defaultBuildArgs?: Record<string, string>;
 }
 
 export type ServiceCategory =

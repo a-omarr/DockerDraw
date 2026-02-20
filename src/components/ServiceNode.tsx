@@ -1,4 +1,4 @@
-import { Trash2, Copy, Edit3, Network, HardDrive, Globe, GripVertical } from 'lucide-react';
+import { Trash2, Copy, Edit3, Network, HardDrive, Globe, GripVertical, FolderOpen } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Service } from '../types';
@@ -148,9 +148,14 @@ function ServiceNodeContent({
                 className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl text-xl sm:text-2xl flex-shrink-0 shadow-sm border border-border/50"
                 style={{ backgroundColor: `${color}10`, color: color }}
             >
-                {template?.Icon ? <template.Icon size={20} className="sm:hidden" /> : null}
-                {template?.Icon ? <template.Icon size={24} className="hidden sm:block" /> : emoji}
-                {!template?.Icon && emoji}
+                {template?.Icon ? (
+                    <>
+                        <template.Icon size={20} className="sm:hidden" />
+                        <template.Icon size={24} className="hidden sm:block" />
+                    </>
+                ) : (
+                    emoji
+                )}
             </div>
 
             {/* Info */}
@@ -160,11 +165,18 @@ function ServiceNodeContent({
                         {service.name}
                     </span>
                     <Badge variant="outline" className="font-mono text-[10px] h-4 px-1.5 bg-background hidden sm:inline-flex">
-                        {service.image.split(':')[1] || 'latest'}
+                        {service.buildContext ? 'build' : (service.image.split(':')[1] || 'latest')}
                     </Badge>
                 </div>
                 <p className="text-[10px] sm:text-xs text-muted-foreground truncate font-mono opacity-70">
-                    {service.image}
+                    {service.buildContext ? (
+                        <span className="flex items-center gap-1">
+                            <FolderOpen size={10} className="shrink-0" />
+                            build {service.buildContext}
+                        </span>
+                    ) : (
+                        service.image
+                    )}
                 </p>
 
                 {/* Badges row */}

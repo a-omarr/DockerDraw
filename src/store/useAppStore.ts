@@ -27,6 +27,10 @@ function createServiceFromTemplate(template: ServiceTemplate): Service {
         networks: [template.defaultNetwork],
         dependsOn: [],
         restart: 'no',
+        buildContext: template.defaultBuildContext,
+        dockerfile: template.defaultDockerfile,
+        buildTarget: template.defaultBuildTarget,
+        buildArgs: template.defaultBuildArgs ? { ...template.defaultBuildArgs } : undefined,
     };
 }
 
