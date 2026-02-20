@@ -89,7 +89,7 @@ export function StatusBar() {
                 >
                     <Command size={9} />
                     <kbd className="font-mono text-[9px] bg-muted px-1 rounded border border-border/50">
-                        ⌘K
+                        Ctrl+K
                     </kbd>
                 </button>
             </div>

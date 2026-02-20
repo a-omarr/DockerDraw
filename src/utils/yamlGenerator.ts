@@ -5,7 +5,6 @@ export function generateDockerCompose(
     services: Service[],
     networkName = 'app_network',
     preset: EnvironmentPreset = 'development',
-    _projectName = 'my-project'
 ): string {
     if (services.length === 0) {
         return `# Add services to generate your docker-compose.yml\nversion: '3.8'\n\nservices: {}\n`;

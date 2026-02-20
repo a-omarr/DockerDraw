@@ -276,7 +276,7 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                         >
                             <Search size={14} />
                             <kbd className="hidden lg:inline text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded border border-border/50">
-                                ⌘K
+                                Ctrl+K
                             </kbd>
                         </Button>
 

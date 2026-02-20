@@ -30,7 +30,7 @@ export function TemplateGallery() {
     const handleLoad = (templateId: string) => {
         const template = builtinTemplates.find((t) => t.id === templateId);
         if (template) {
-            loadTemplate(template.services as any[]);
+            loadTemplate(template.services);
             setShowTemplateGallery(false);
         }
     };

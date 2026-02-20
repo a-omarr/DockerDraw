@@ -34,9 +34,9 @@ function createServiceFromTemplate(template: ServiceTemplate): Service {
     };
 }
 
-function computeDerived(services: Service[], networkName: string, environmentPreset: EnvironmentPreset, projectName: string) {
+function computeDerived(services: Service[], networkName: string, environmentPreset: EnvironmentPreset) {
     return {
-        yamlOutput: generateDockerCompose(services, networkName, environmentPreset, projectName),
+        yamlOutput: generateDockerCompose(services, networkName, environmentPreset),
         warnings: validateServices(services),
         portConflicts: detectPortConflicts(services),
     };
@@ -129,11 +129,11 @@ export const useAppStore = create<AppState>()(
 
                 setProjectName: (name) => {
                     const s = get();
-                    set({ projectName: name, ...computeDerived(s.services, s.networkName, s.environmentPreset, name) });
+                    set({ projectName: name, ...computeDerived(s.services, s.networkName, s.environmentPreset) });
                 },
                 setNetworkName: (name) => {
                     const s = get();
-                    set({ networkName: name, ...computeDerived(s.services, name, s.environmentPreset, s.projectName) });
+                    set({ networkName: name, ...computeDerived(s.services, name, s.environmentPreset) });
                 },
                 setEnvironmentPreset: (preset) => {
                     const s = get();
@@ -144,7 +144,7 @@ export const useAppStore = create<AppState>()(
                             return { ...svc, restart: 'no' as const };
                         }
                     });
-                    set({ environmentPreset: preset, services: updated, ...computeDerived(updated, s.networkName, preset, s.projectName) });
+                    set({ environmentPreset: preset, services: updated, ...computeDerived(updated, s.networkName, preset) });
                 },
 
                 addService: (templateId) => {
@@ -159,7 +159,7 @@ export const useAppStore = create<AppState>()(
                         newService.name = `${newService.name}_${count}`;
                     }
                     const newServices = [...s.services, newService];
-                    set({ services: newServices, ...computeDerived(newServices, s.networkName, s.environmentPreset, s.projectName) });
+                    set({ services: newServices, ...computeDerived(newServices, s.networkName, s.environmentPreset) });
                 },
 
                 removeService: (id) => {
@@ -170,14 +170,14 @@ export const useAppStore = create<AppState>()(
                     set({
                         services: newServices,
                         selectedServiceId: s.selectedServiceId === id ? null : s.selectedServiceId,
-                        ...computeDerived(newServices, s.networkName, s.environmentPreset, s.projectName),
+                        ...computeDerived(newServices, s.networkName, s.environmentPreset),
                     });
                 },
 
                 updateService: (id, updates) => {
                     const s = get();
                     const newServices = s.services.map((svc) => (svc.id === id ? { ...svc, ...updates } : svc));
-                    set({ services: newServices, ...computeDerived(newServices, s.networkName, s.environmentPreset, s.projectName) });
+                    set({ services: newServices, ...computeDerived(newServices, s.networkName, s.environmentPreset) });
                 },
 
                 selectService: (id) => set({ selectedServiceId: id }),
@@ -190,12 +190,12 @@ export const useAppStore = create<AppState>()(
                     const reordered = [...s.services];
                     const [moved] = reordered.splice(oldIndex, 1);
                     reordered.splice(newIndex, 0, moved);
-                    set({ services: reordered, ...computeDerived(reordered, s.networkName, s.environmentPreset, s.projectName) });
+                    set({ services: reordered, ...computeDerived(reordered, s.networkName, s.environmentPreset) });
                 },
 
                 clearAllServices: () => {
                     const s = get();
-                    set({ services: [], selectedServiceId: null, ...computeDerived([], s.networkName, s.environmentPreset, s.projectName) });
+                    set({ services: [], selectedServiceId: null, ...computeDerived([], s.networkName, s.environmentPreset) });
                 },
 
                 duplicateService: (id) => {
@@ -209,7 +209,7 @@ export const useAppStore = create<AppState>()(
                         ports: original.ports.map((p) => ({ ...p, host: p.host + 1 })),
                     };
                     const newServices = [...s.services, copy];
-                    set({ services: newServices, ...computeDerived(newServices, s.networkName, s.environmentPreset, s.projectName) });
+                    set({ services: newServices, ...computeDerived(newServices, s.networkName, s.environmentPreset) });
                 },
 
                 toggleYAMLPanel: () => set((state) => ({ showYAMLPanel: !state.showYAMLPanel })),
@@ -254,7 +254,7 @@ export const useAppStore = create<AppState>()(
                         networkName: project.network,
                         environmentPreset: project.preset,
                         selectedServiceId: null,
-                        ...computeDerived(project.services, project.network, project.preset, s.projectName),
+                        ...computeDerived(project.services, project.network, project.preset),
                     });
                 },
 
@@ -264,18 +264,18 @@ export const useAppStore = create<AppState>()(
 
                 importFromYAML: (services, network) => {
                     const s = get();
-                    set({ services, networkName: network, selectedServiceId: null, ...computeDerived(services, network, s.environmentPreset, s.projectName) });
+                    set({ services, networkName: network, selectedServiceId: null, ...computeDerived(services, network, s.environmentPreset) });
                 },
 
                 loadTemplate: (services) => {
                     const s = get();
                     const newServices = services.map((svc) => ({ ...svc, id: crypto.randomUUID() }));
-                    set({ services: newServices, selectedServiceId: null, ...computeDerived(newServices, s.networkName, s.environmentPreset, s.projectName) });
+                    set({ services: newServices, selectedServiceId: null, ...computeDerived(newServices, s.networkName, s.environmentPreset) });
                 },
 
                 refreshDerived: () => {
-                    const { services, networkName, environmentPreset, projectName } = get();
-                    const yaml = generateDockerCompose(services, networkName, environmentPreset, projectName);
+                    const { services, networkName, environmentPreset } = get();
+                    const yaml = generateDockerCompose(services, networkName, environmentPreset);
                     const warnings = validateServices(services);
                     const portConflicts = detectPortConflicts(services);
                     set({ yamlOutput: yaml, warnings, portConflicts });
