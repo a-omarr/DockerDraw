@@ -9,6 +9,11 @@ export function useKeyboardShortcuts() {
             const store = useAppStore.getState();
             const mod = e.metaKey || e.ctrlKey;
 
+            // Don't intercept shortcuts when a dialog/modal is open (let the dialog handle its own keys)
+            const hasOpenDialog = document.querySelector('[role="alertdialog"]') ||
+                (document.querySelector('[role="dialog"]') && !store.showCommandPalette);
+            if (hasOpenDialog && e.key !== 'Escape') return;
+
             // Ctrl+Z → Undo
             if (mod && e.key === 'z' && !e.shiftKey) {
                 e.preventDefault();

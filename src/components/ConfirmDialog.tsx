@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -27,8 +28,22 @@ export function ConfirmDialog({
     variant = 'destructive',
     onConfirm,
 }: ConfirmDialogProps) {
+    const [open, setOpen] = useState(false);
+    const actionRef = useRef<HTMLButtonElement>(null);
+
+    // Auto-focus the confirm button when dialog opens so Enter triggers confirm
+    useEffect(() => {
+        if (open) {
+            // Small delay to ensure the dialog content is rendered
+            const timer = setTimeout(() => {
+                actionRef.current?.focus();
+            }, 50);
+            return () => clearTimeout(timer);
+        }
+    }, [open]);
+
     return (
-        <AlertDialog>
+        <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
                 {trigger}
             </AlertDialogTrigger>
@@ -42,10 +57,11 @@ export function ConfirmDialog({
                 <AlertDialogFooter>
                     <AlertDialogCancel className="h-9 text-xs font-medium">Cancel</AlertDialogCancel>
                     <AlertDialogAction
+                        ref={actionRef}
                         onClick={onConfirm}
                         className={`h-9 text-xs font-bold ${variant === 'destructive'
-                                ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
-                                : ''
+                            ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                            : ''
                             }`}
                     >
                         {confirmLabel}
