@@ -193,7 +193,7 @@ function EmptyCanvas() {
             </p>
 
             {/* 3-step guide */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 mb-10 px-2">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 mb-10 px-2 mx-auto">
                 {[
                     { step: '1', icon: Plus, label: 'Pick services', sub: 'from the library' },
                     { step: '2', icon: Settings, label: 'Configure', sub: 'ports, env, volumes' },
@@ -203,7 +203,7 @@ function EmptyCanvas() {
                         {i > 0 && (
                             <div className="hidden sm:block w-8 h-[1px] bg-border -ml-3" />
                         )}
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-2.5 w-48 sm:w-auto">
                             <div className="w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">
                                 {item.step}
                             </div>
