@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Plus, Layers, Trash2 } from 'lucide-react';
 import {
     DndContext,
@@ -6,6 +7,8 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
+    DragOverlay,
+    type DragStartEvent,
     type DragEndEvent,
 } from '@dnd-kit/core';
 import {
@@ -14,27 +17,35 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { useAppStore } from '../store/useAppStore';
-import { ServiceNode } from './ServiceNode';
+import { ServiceNode, ServiceNodeOverlay } from './ServiceNode';
 import { PortConflictBanner } from './PortConflictBanner';
 import { ConfirmDialog } from './ConfirmDialog';
 import { Button } from '@/components/ui/button';
 
 export function Canvas() {
     const { services, portConflicts, selectedServiceId, reorderServices, clearAllServices } = useAppStore();
+    const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 3 } }),
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
 
+    const handleDragStart = (event: DragStartEvent) => {
+        setActiveDragId(event.active.id as string);
+    };
+
     const handleDragEnd = (event: DragEndEvent) => {
+        setActiveDragId(null);
         const { active, over } = event;
         if (over && active.id !== over.id) {
             reorderServices(active.id as string, over.id as string);
         }
     };
+
+    const draggedService = activeDragId ? services.find((s) => s.id === activeDragId) : null;
 
     return (
         <div className="flex-1 flex flex-col h-full bg-slate-50 relative overflow-hidden">
@@ -64,6 +75,7 @@ export function Canvas() {
                     <DndContext
                         sensors={sensors}
                         collisionDetection={closestCenter}
+                        onDragStart={handleDragStart}
                         onDragEnd={handleDragEnd}
                     >
                         <SortableContext
@@ -93,12 +105,8 @@ export function Canvas() {
                                         onConfirm={clearAllServices}
                                     />
                                 </div>
-                                {services.map((service, index) => (
-                                    <div
-                                        key={service.id}
-                                        className="animate-fade-in-up"
-                                        style={{ animationDelay: `${index * 30}ms`, animationFillMode: 'both' }}
-                                    >
+                                {services.map((service) => (
+                                    <div key={service.id}>
                                         <ServiceNode
                                             service={service}
                                             isSelected={service.id === selectedServiceId}
@@ -140,6 +148,13 @@ export function Canvas() {
                                 </div>
                             </div>
                         </SortableContext>
+                        <DragOverlay>
+                            {draggedService ? (
+                                <ServiceNodeOverlay
+                                    service={draggedService}
+                                />
+                            ) : null}
+                        </DragOverlay>
                     </DndContext>
                 )}
             </div>
