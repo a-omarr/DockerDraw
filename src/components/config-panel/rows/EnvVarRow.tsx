@@ -19,7 +19,15 @@ export function EnvVarRow({ envVar, onChange, onRemove }: EnvVarRowProps) {
             <div className="flex items-center justify-between gap-2">
                 <Input
                     value={envVar.key}
-                    onChange={(e) => onChange({ ...envVar, key: e.target.value })}
+                    onChange={(e) => {
+                        const newKey = e.target.value;
+                        const SECRET_PATTERN = /PASS|SECRET|KEY|TOKEN/i;
+                        onChange({
+                            ...envVar,
+                            key: newKey,
+                            isSecret: SECRET_PATTERN.test(newKey) ? true : envVar.isSecret
+                        });
+                    }}
                     placeholder="VAR_NAME"
                     className="h-8 flex-1 font-mono text-xs uppercase"
                 />

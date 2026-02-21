@@ -80,6 +80,7 @@ export function parseYAMLToServices(yamlString: string): { services: Service[]; 
                     const isSecret =
                         k.toLowerCase().includes('password') ||
                         k.toLowerCase().includes('secret') ||
+                        k.toLowerCase().includes('token') ||
                         k.toLowerCase().includes('key');
                     environment.push({ key: sanitizeValue(k), value: sanitizeValue(v), isSecret });
                 });

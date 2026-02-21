@@ -109,6 +109,18 @@ export function validateServices(services: Service[]): ValidationWarning[] {
                 action: 'Remove one of the dependencies to break the loop',
             });
         }
+
+        // Strict Image Name Validation
+        const IMAGE_REGEX = /^[a-z0-9/._:-]+$/;
+        if (service.image && !IMAGE_REGEX.test(service.image)) {
+            warnings.push({
+                id: `invalid-image-${service.id}`,
+                type: 'error',
+                serviceId: service.id,
+                message: `Service "${service.name}": Invalid characters in "Docker Image" field. Only lowercase letters, numbers, and ./_:- are allowed.`,
+                action: 'Remove special characters from the image name',
+            });
+        }
     });
 
     // Tips
