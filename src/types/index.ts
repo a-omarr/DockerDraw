@@ -1,4 +1,5 @@
 import type { IconType } from 'react-icons';
+import type { ReactNode } from 'react';
 
 export interface Port {
     host: number;
@@ -157,4 +158,13 @@ export interface ComposeNetwork {
 export interface ComposeVolume {
     driver?: string;
     external?: boolean;
+}
+
+export interface CommandItem {
+    id: string;
+    label: string;
+    icon: ReactNode;
+    shortcut?: string;
+    category: string;
+    action: () => void;
 }
