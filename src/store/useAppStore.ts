@@ -40,6 +40,9 @@ function computeDerived(services: Service[], networkName: string, environmentPre
         yamlOutput: generateDockerCompose(services, networkName, environmentPreset),
         warnings: validateServices(services),
         portConflicts: detectPortConflicts(services),
+        totalPorts: services.reduce((acc, s) => acc + s.ports.length, 0),
+        totalVolumes: services.reduce((acc, s) => acc + s.volumes.length, 0),
+        totalEnvVars: services.reduce((acc, s) => acc + s.environment.length, 0),
     };
 }
 
@@ -68,6 +71,9 @@ interface AppState {
     yamlOutput: string;
     warnings: ValidationWarning[];
     portConflicts: PortConflict[];
+    totalPorts: number;
+    totalVolumes: number;
+    totalEnvVars: number;
 
     // Saved projects
     savedProjects: SavedProject[];
@@ -130,6 +136,9 @@ export const useAppStore = create<AppState>()(
                 yamlOutput: '',
                 warnings: [],
                 portConflicts: [],
+                totalPorts: 0,
+                totalVolumes: 0,
+                totalEnvVars: 0,
 
                 savedProjects: [],
 
@@ -286,10 +295,7 @@ export const useAppStore = create<AppState>()(
 
                 refreshDerived: () => {
                     const { services, networkName, environmentPreset } = get();
-                    const yaml = generateDockerCompose(services, networkName, environmentPreset);
-                    const warnings = validateServices(services);
-                    const portConflicts = detectPortConflicts(services);
-                    set({ yamlOutput: yaml, warnings, portConflicts });
+                    set({ ...computeDerived(services, networkName, environmentPreset) });
                 },
             }),
             {

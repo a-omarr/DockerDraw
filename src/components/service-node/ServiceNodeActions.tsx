@@ -1,5 +1,5 @@
 import { Edit3, Copy, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '../ui/button';
 import { ConfirmDialog } from '../modals';
 
 interface ServiceNodeActionsProps {

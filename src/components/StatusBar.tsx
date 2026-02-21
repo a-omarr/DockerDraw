@@ -18,11 +18,10 @@ export function StatusBar() {
         toggleLibrary,
         setShowCommandPalette,
         environmentPreset,
+        totalPorts,
+        totalVolumes,
+        totalEnvVars,
     } = useAppStore();
-
-    const totalPorts = services.reduce((acc, s) => acc + s.ports.length, 0);
-    const totalVolumes = services.reduce((acc, s) => acc + s.volumes.length, 0);
-    const totalEnvVars = services.reduce((acc, s) => acc + s.environment.length, 0);
 
     return (
         <footer className="flex items-center justify-between px-2 sm:px-4 h-11 sm:h-7 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 text-[10px] sm:text-[10px] font-medium text-muted-foreground shrink-0 select-none pb-safe relative z-50">

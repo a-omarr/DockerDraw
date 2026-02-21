@@ -4,8 +4,8 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Service, ServiceTemplate } from '../../types';
 import { useAppStore } from '../../store/useAppStore';
 import { serviceTemplates } from '../../data/serviceTemplates';
-import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { Card } from '../ui/card';
+import { cn } from '../../lib/utils';
 
 // Sub-components
 import { ServiceNodeIcon } from './ServiceNodeIcon';
