@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 
-export function YAMLPreview() {
+export function YAMLPreview({ className }: { className?: string }) {
     const { yamlOutput, warnings, setShowSuccessModal } = useAppStore();
     const [copied, setCopied] = useState(false);
     const [showWarnings, setShowWarnings] = useState(true);
@@ -35,7 +35,7 @@ export function YAMLPreview() {
     };
 
     return (
-        <div className="flex flex-col h-[350px] bg-background border-t border-border shadow-[0_-4px_24px_rgba(0,0,0,0.03)]">
+        <div className={cn("flex flex-col h-[350px] bg-background border-t border-border shadow-[0_-4px_24px_rgba(0,0,0,0.03)]", className)}>
             {/* Header bar */}
             <div className="flex items-center justify-between px-6 py-2 border-b bg-muted/30">
                 <div className="flex items-center gap-4">
@@ -72,31 +72,32 @@ export function YAMLPreview() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                     <Button
                         variant="secondary"
                         size="sm"
                         onClick={handleCopy}
                         className={cn(
-                            "h-8 gap-2 px-3 text-[11px] font-bold transition-all border-none ring-0",
+                            "h-7 sm:h-8 gap-1.5 sm:gap-2 px-2 sm:px-3 text-[10px] sm:text-[11px] font-bold transition-all border-none ring-0",
                             copied ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-muted hover:bg-muted-foreground/10"
                         )}
                     >
                         {copied ? <Check size={12} /> : <Copy size={12} />}
-                        {copied ? 'Copied' : 'Copy'}
+                        <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy'}</span>
                     </Button>
                     <Button
                         size="sm"
                         onClick={handleDownload}
-                        className="h-8 gap-2 px-4 text-[11px] font-bold shadow-sm"
+                        className="h-7 sm:h-8 gap-1.5 sm:gap-2 px-2 sm:px-4 text-[10px] sm:text-[11px] font-bold shadow-sm"
                     >
                         <Download size={12} />
-                        Download Compose File
+                        <span className="hidden sm:inline">Download Compose File</span>
+                        <span className="sm:hidden">Download</span>
                     </Button>
                 </div>
             </div>
 
-            <div className="flex flex-1 overflow-hidden relative">
+            <div className="flex flex-col md:flex-row flex-1 overflow-hidden relative">
                 {/* Monaco editor */}
                 <div className="flex-1 overflow-hidden opacity-90">
                     <Editor
@@ -126,7 +127,7 @@ export function YAMLPreview() {
 
                 {/* Warnings panel */}
                 {showWarnings && warnings.length > 0 && (
-                    <div className="flex-shrink-0 w-80 border-l bg-muted/10 backdrop-blur-sm animate-in slide-in-from-right-1 duration-300">
+                    <div className="flex-shrink-0 w-full md:w-80 h-40 md:h-auto border-t md:border-t-0 md:border-l bg-muted/10 backdrop-blur-sm animate-in slide-in-from-bottom-2 md:slide-in-from-right-1 duration-300 z-10">
                         <ScrollArea className="h-full">
                             <div className="p-4 space-y-3">
                                 {warnings.map((w) => (

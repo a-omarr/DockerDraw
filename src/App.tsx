@@ -86,11 +86,18 @@ export default function App() {
         )}
 
         {/* Center: canvas */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0" data-tour="canvas">
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0 relative" data-tour="canvas">
           <Canvas />
 
-          {/* Bottom: YAML preview — hidden on mobile */}
-          {showYAMLPanel && !isMobile && <div data-tour="yaml-preview"><YAMLPreview /></div>}
+          {/* Bottom/Overlay: YAML preview */}
+          {showYAMLPanel && (
+            <div
+              data-tour="yaml-preview"
+              className={isMobile ? "absolute inset-0 z-30" : ""}
+            >
+              <YAMLPreview className={isMobile ? "h-full border-t-0" : ""} />
+            </div>
+          )}
         </div>
 
         {/* Right: config panel — inline on desktop, overlay on tablet/mobile */}

@@ -147,7 +147,7 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
             {/* Right: Actions */}
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                 {/* Undo/Redo */}
-                <div className="flex items-center gap-0.5">
+                <div className="hidden sm:flex items-center gap-0.5">
                     <Button
                         variant="ghost"
                         size="icon"
@@ -172,52 +172,54 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
 
                 <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 hidden sm:block" />
 
-                {/* Environment Preset Toggle — compact on mobile */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className={`h-9 gap-1.5 sm:gap-2 font-medium text-xs sm:text-sm ${environmentPreset === 'development'
-                                ? 'border-emerald-200 bg-emerald-50/50 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800'
-                                : 'border-orange-200 bg-orange-50/50 text-orange-700 hover:bg-orange-50 hover:text-orange-800'
-                                }`}
-                        >
-                            {environmentPreset === 'development' ? (
-                                <SiVite size={14} className="text-emerald-600" />
-                            ) : (
-                                <SiDocker size={14} className="text-orange-600" />
-                            )}
-                            <span className="hidden sm:inline">
-                                {environmentPreset === 'development' ? 'Development' : 'Production'}
-                            </span>
-                            <ChevronDown size={12} className="opacity-50" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                        {(['development', 'production'] as const).map((preset) => (
-                            <DropdownMenuItem
-                                key={preset}
-                                onClick={() => setEnvironmentPreset(preset)}
-                                className="flex flex-col items-start gap-0.5"
+                {/* Environment Preset Toggle — hidden on mobile */}
+                <div className="hidden sm:block">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className={`h-9 gap-1.5 sm:gap-2 font-medium text-xs sm:text-sm ${environmentPreset === 'development'
+                                    ? 'border-emerald-200 bg-emerald-50/50 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800'
+                                    : 'border-orange-200 bg-orange-50/50 text-orange-700 hover:bg-orange-50 hover:text-orange-800'
+                                    }`}
                             >
-                                <div className="flex items-center gap-2 font-medium capitalize">
-                                    {preset === 'development' ? (
-                                        <SiVite size={12} className="text-emerald-600" />
-                                    ) : (
-                                        <SiDocker size={12} className="text-orange-600" />
-                                    )}
-                                    {preset}
-                                </div>
-                                <span className="text-[10px] text-muted-foreground">
-                                    {preset === 'development'
-                                        ? 'Hot reload, verbose logs, exposed ports'
-                                        : 'Restart policies, resource limits, health checks'}
+                                {environmentPreset === 'development' ? (
+                                    <SiVite size={14} className="text-emerald-600" />
+                                ) : (
+                                    <SiDocker size={14} className="text-orange-600" />
+                                )}
+                                <span className="hidden sm:inline">
+                                    {environmentPreset === 'development' ? 'Development' : 'Production'}
                                 </span>
-                            </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                                <ChevronDown size={12} className="opacity-50" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                            {(['development', 'production'] as const).map((preset) => (
+                                <DropdownMenuItem
+                                    key={preset}
+                                    onClick={() => setEnvironmentPreset(preset)}
+                                    className="flex flex-col items-start gap-0.5"
+                                >
+                                    <div className="flex items-center gap-2 font-medium capitalize">
+                                        {preset === 'development' ? (
+                                            <SiVite size={12} className="text-emerald-600" />
+                                        ) : (
+                                            <SiDocker size={12} className="text-orange-600" />
+                                        )}
+                                        {preset}
+                                    </div>
+                                    <span className="text-[10px] text-muted-foreground">
+                                        {preset === 'development'
+                                            ? 'Hot reload, verbose logs, exposed ports'
+                                            : 'Restart policies, resource limits, health checks'}
+                                    </span>
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
 
                 <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 hidden sm:block" />
 
@@ -304,11 +306,24 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-52">
+                            <DropdownMenuItem onClick={handleUndo} disabled={!canUndo}>
+                                <Undo2 size={14} className="mr-2" />
+                                Undo
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleRedo} disabled={!canRedo}>
+                                <Redo2 size={14} className="mr-2" />
+                                Redo
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => setEnvironmentPreset(environmentPreset === 'development' ? 'production' : 'development')}>
+                                {environmentPreset === 'development' ? <SiDocker size={14} className="mr-2 text-orange-600" /> : <SiVite size={14} className="mr-2 text-emerald-600" />}
+                                Switch to {environmentPreset === 'development' ? 'Production' : 'Development'}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setShowCommandPalette(true)}>
                                 <Search size={14} className="mr-2" />
                                 Command Palette
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setShowTemplateGallery(true)}>
                                 <LayoutTemplate size={14} className="mr-2" />
                                 Templates
