@@ -47,7 +47,7 @@ export function ConfirmDialog({
             <AlertDialogTrigger asChild>
                 {trigger}
             </AlertDialogTrigger>
-            <AlertDialogContent className="max-w-md">
+            <AlertDialogContent className="max-w-md" onClick={(e) => e.stopPropagation()}>
                 <AlertDialogHeader>
                     <AlertDialogTitle className="text-base font-bold">{title}</AlertDialogTitle>
                     <AlertDialogDescription className="text-sm text-muted-foreground">
@@ -55,10 +55,13 @@ export function ConfirmDialog({
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel className="h-9 text-xs font-medium">Cancel</AlertDialogCancel>
+                    <AlertDialogCancel onClick={(e) => e.stopPropagation()} className="h-9 text-xs font-medium">Cancel</AlertDialogCancel>
                     <AlertDialogAction
                         ref={actionRef}
-                        onClick={onConfirm}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onConfirm();
+                        }}
                         className={`h-9 text-xs font-bold ${variant === 'destructive'
                             ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
                             : ''
