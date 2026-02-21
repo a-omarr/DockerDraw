@@ -269,4 +269,43 @@ export const builtinTemplates: BuiltinTemplate[] = [
             },
         ],
     },
+    {
+        id: 'bun-postgres',
+        name: 'Bun + PostgreSQL',
+        description: 'Fast Bun.js runtime with PostgreSQL database',
+        tags: ['bun', 'postgres', 'fullstack', 'javascript'],
+        uses: 450,
+        network: 'bun_network',
+        services: [
+            {
+                name: 'postgres_db',
+                templateId: 'postgresql',
+                image: 'postgres:16',
+                ports: [{ host: 5432, container: 5432 }],
+                environment: [
+                    { key: 'POSTGRES_DB', value: 'bunapp', isSecret: false },
+                    { key: 'POSTGRES_USER', value: 'bunuser', isSecret: false },
+                    { key: 'POSTGRES_PASSWORD', value: 'bunpass', isSecret: true },
+                ],
+                volumes: [{ host: './data/postgres', container: '/var/lib/postgresql/data' }],
+                networks: ['bun_network'],
+                dependsOn: [],
+                restart: 'unless-stopped',
+            },
+            {
+                name: 'bun_app',
+                templateId: 'bun',
+                image: 'oven/bun:latest',
+                ports: [{ host: 3000, container: 3000 }],
+                environment: [
+                    { key: 'DATABASE_URL', value: 'postgresql://bunuser:bunpass@postgres_db:5432/bunapp', isSecret: false },
+                    { key: 'NODE_ENV', value: 'development', isSecret: false },
+                ],
+                volumes: [{ host: './app', container: '/home/bun/app' }],
+                networks: ['bun_network'],
+                dependsOn: ['postgres_db'],
+                restart: 'no',
+            },
+        ],
+    },
 ];

@@ -17,7 +17,8 @@ import {
     SiApache,
     SiPhp,
     SiReact,
-    SiSupabase
+    SiSupabase,
+    SiBun
 } from 'react-icons/si';
 
 export const serviceTemplates: ServiceTemplate[] = [
@@ -398,6 +399,25 @@ export const serviceTemplates: ServiceTemplate[] = [
         tags: ['backend', 'postgres', 'auth', 'realtime', 'baas'],
         color: '#3ecf8e',
         glowColor: 'rgba(62, 207, 142, 0.4)',
+    },
+    {
+        id: 'bun',
+        name: 'Bun',
+        emoji: '🥯',
+        Icon: SiBun,
+        category: 'app',
+        description: 'Fast all-in-one JavaScript runtime',
+        defaultImage: 'oven/bun:latest',
+        availableVersions: ['oven/bun:latest', 'oven/bun:1.1', 'oven/bun:1.0', 'oven/bun:alpine'],
+        defaultPorts: [{ host: 3000, container: 3000 }],
+        defaultEnvironment: [
+            { key: 'NODE_ENV', value: 'development', isSecret: false },
+        ],
+        defaultVolumes: [{ host: './app', container: '/home/bun/app' }],
+        defaultNetwork: 'app_network',
+        tags: ['app', 'javascript', 'runtime', 'bun'],
+        color: '#f9f1e1',
+        glowColor: 'rgba(249, 241, 225, 0.4)',
     }
 ];
 
