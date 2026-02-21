@@ -1,5 +1,6 @@
 import yaml from 'js-yaml';
 import type { Service, EnvVar, Port, Volume, ComposeConfig } from '../types';
+import { resolveDependencyNamesToIds } from './serviceUtils';
 
 const MAX_YAML_SIZE = 100 * 1024; // 100 KB
 const MAX_SERVICES = 50;
@@ -141,5 +142,6 @@ export function parseYAMLToServices(yamlString: string): { services: Service[]; 
         };
     });
 
-    return { services, network: networkName };
+    const resolvedServices = resolveDependencyNamesToIds(services);
+    return { services: resolvedServices, network: networkName };
 }

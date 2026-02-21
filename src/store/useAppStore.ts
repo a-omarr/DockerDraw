@@ -14,6 +14,7 @@ import { serviceTemplates } from '../data/serviceTemplates';
 import { generateDockerCompose } from '../utils/yamlGenerator';
 import { detectPortConflicts } from '../utils/portConflict';
 import { validateServices } from '../utils/validation';
+import { resolveDependencyNamesToIds } from '../utils/serviceUtils';
 
 function createServiceFromTemplate(template: ServiceTemplate): Service {
     return {
@@ -277,8 +278,9 @@ export const useAppStore = create<AppState>()(
 
                 loadTemplate: (services) => {
                     const s = get();
-                    const newServices = services.map((svc) => ({ ...svc, id: crypto.randomUUID() }));
-                    set({ services: newServices, selectedServiceId: null, ...computeDerived(newServices, s.networkName, s.environmentPreset) });
+                    const renamedServices = services.map((svc) => ({ ...svc, id: crypto.randomUUID() }));
+                    const resolvedServices = resolveDependencyNamesToIds(renamedServices as Service[]);
+                    set({ services: resolvedServices, selectedServiceId: null, ...computeDerived(resolvedServices, s.networkName, s.environmentPreset) });
                 },
 
                 refreshDerived: () => {
