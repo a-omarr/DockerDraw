@@ -263,6 +263,9 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                         onToggleYAMLPanel={toggleYAMLPanel}
                         hasSavedProjects={savedProjects.length > 0}
                         onStartTour={onStartTour}
+                        onShare={handleShare}
+                        shareCopied={shareCopied}
+                        isShareDisabled={!isDirty || services.length === 0}
                     />
                 )}
 

@@ -7,6 +7,8 @@ import {
     HelpCircle,
     FileCode,
     Menu,
+    Share2,
+    Check,
 } from 'lucide-react';
 import { SiDocker, SiVite } from 'react-icons/si';
 import { Button } from '@/components/ui/button';
@@ -38,6 +40,9 @@ interface CompactMenuProps {
     onToggleYAMLPanel: () => void;
     hasSavedProjects: boolean;
     onStartTour?: () => void;
+    onShare: () => void;
+    shareCopied: boolean;
+    isShareDisabled: boolean;
 }
 
 export function CompactMenu({
@@ -57,6 +62,9 @@ export function CompactMenu({
     onToggleYAMLPanel,
     hasSavedProjects,
     onStartTour,
+    onShare,
+    shareCopied,
+    isShareDisabled,
 }: CompactMenuProps) {
     return (
         <DropdownMenu>
@@ -110,6 +118,18 @@ export function CompactMenu({
                 <DropdownMenuItem onClick={onToggleYAMLPanel} className="py-2.5">
                     <FileCode size={14} className={cn("mr-2.5", showYAMLPanel && "text-primary")} />
                     {showYAMLPanel ? "Hide YAML Code" : "View YAML Code"}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={onShare}
+                    className="py-2.5"
+                    disabled={isShareDisabled}
+                >
+                    {shareCopied ? (
+                        <Check size={14} className="mr-2.5 text-green-500" />
+                    ) : (
+                        <Share2 size={14} className="mr-2.5" />
+                    )}
+                    {shareCopied ? 'Copied!' : 'Share Project'}
                 </DropdownMenuItem>
                 {hasSavedProjects && (
                     <DropdownMenuItem onClick={onShowLoadModal} className="py-2.5">
