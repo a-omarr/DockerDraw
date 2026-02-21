@@ -165,7 +165,7 @@ export function Canvas() {
 }
 
 function EmptyCanvas() {
-    const { setShowTemplateGallery, setShowCommandPalette, importFromYAML } = useAppStore();
+    const { toggleLibrary, setShowCommandPalette, importFromYAML } = useAppStore();
 
     const handleAddExample = () => {
         try {
@@ -221,10 +221,10 @@ function EmptyCanvas() {
                 <Button
                     size="lg"
                     className="gap-2 shadow-md px-6"
-                    onClick={() => setShowTemplateGallery(true)}
+                    onClick={() => toggleLibrary()}
                 >
                     <Layers size={18} />
-                    Browse Templates
+                    Browse Library
                 </Button>
                 <Button
                     variant="outline"

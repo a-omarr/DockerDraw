@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, ChevronDown, ChevronUp, Plus } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, Plus, X } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { serviceTemplates } from '../data/serviceTemplates';
 import type { ServiceCategory, ServiceTemplate } from '../types';
@@ -22,7 +22,7 @@ const CATEGORY_LABELS: Record<ServiceCategory, string> = {
 const CATEGORY_ORDER: ServiceCategory[] = ['app', 'database', 'cache', 'webserver', 'queue', 'monitoring'];
 
 export function ServiceLibrary() {
-    const { addService, services } = useAppStore();
+    const { addService, services, setShowLibrary } = useAppStore();
     const [search, setSearch] = useState('');
     const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
@@ -54,9 +54,19 @@ export function ServiceLibrary() {
                     <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                         Library
                     </h2>
-                    <Badge variant="secondary" className="font-mono text-[10px] px-1.5 h-4">
-                        {serviceTemplates.length}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="font-mono text-[10px] px-1.5 h-4">
+                            {serviceTemplates.length}
+                        </Badge>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 rounded-md text-muted-foreground hover:text-foreground"
+                            onClick={() => setShowLibrary(false)}
+                        >
+                            <X size={14} />
+                        </Button>
+                    </div>
                 </div>
                 <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

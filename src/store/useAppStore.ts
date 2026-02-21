@@ -116,8 +116,8 @@ export const useAppStore = create<AppState>()(
                 services: [],
                 selectedServiceId: null,
 
-                showYAMLPanel: typeof window !== 'undefined' ? window.innerWidth >= 1024 : true,
-                showLibrary: typeof window !== 'undefined' ? window.innerWidth >= 1024 : true,
+                showYAMLPanel: false,
+                showLibrary: false,
                 showTemplateGallery: false,
                 showImportModal: false,
                 showSaveModal: false,
