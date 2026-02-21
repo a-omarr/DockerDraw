@@ -101,7 +101,7 @@ export default function App() {
         </div>
 
         {/* Right: config panel — inline on desktop, overlay on tablet/mobile */}
-        {!isTablet && <ConfigPanel />}
+        {!isTablet && selectedServiceId && <ConfigPanel />}
         {isTablet && selectedServiceId && (
           <>
             <div
