@@ -308,4 +308,40 @@ export const builtinTemplates: BuiltinTemplate[] = [
             },
         ],
     },
+    {
+        id: 'monitoring-stack',
+        name: 'Monitoring Stack',
+        description: 'Prometheus + Grafana for metrics and visualization',
+        tags: ['monitoring', 'prometheus', 'grafana', 'metrics'],
+        uses: 320,
+        network: 'monitoring_network',
+        services: [
+            {
+                name: 'prometheus',
+                templateId: 'prometheus',
+                image: 'prom/prometheus',
+                ports: [{ host: 9090, container: 9090 }],
+                environment: [],
+                volumes: [
+                    { host: './prometheus/prometheus.yml', container: '/etc/prometheus/prometheus.yml', mode: 'ro' },
+                ],
+                networks: ['monitoring_network'],
+                dependsOn: [],
+                restart: 'unless-stopped',
+            },
+            {
+                name: 'grafana',
+                templateId: 'grafana',
+                image: 'grafana/grafana:latest',
+                ports: [{ host: 3001, container: 3000 }],
+                environment: [
+                    { key: 'GF_SECURITY_ADMIN_PASSWORD', value: 'admin', isSecret: true },
+                ],
+                volumes: [{ host: 'grafana_data', container: '/var/lib/grafana' }],
+                networks: ['monitoring_network'],
+                dependsOn: ['prometheus'],
+                restart: 'unless-stopped',
+            },
+        ],
+    },
 ];

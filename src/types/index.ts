@@ -81,7 +81,8 @@ export type ServiceCategory =
     | 'webserver'
     | 'queue'
     | 'app'
-    | 'monitoring';
+    | 'monitoring'
+    | 'auth';
 
 export interface ValidationWarning {
     id: string;
