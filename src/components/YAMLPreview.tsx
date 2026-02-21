@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { Copy, Check, Download, AlertTriangle, Lightbulb, FileCode, ChevronRight } from 'lucide-react';
+import { Copy, Check, Download, AlertTriangle, Lightbulb, FileCode } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import { useAppStore } from '../store/useAppStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { useAppActions } from '../hooks/useAppActions';
+import { WarningsPanel } from './WarningsPanel';
 
 export function YAMLPreview({ className }: { className?: string }) {
-    const { yamlOutput, warnings, setShowSuccessModal } = useAppStore();
+    const { yamlOutput, warnings } = useAppStore();
     const [copied, setCopied] = useState(false);
     const [showWarnings, setShowWarnings] = useState(true);
+    const { handleDownload } = useAppActions();
 
     const warningCount = warnings.filter((w) => w.type === 'warning' || w.type === 'error').length;
     const tipCount = warnings.filter((w) => w.type === 'tip').length;
@@ -21,17 +23,6 @@ export function YAMLPreview({ className }: { className?: string }) {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         });
-    };
-
-    const handleDownload = () => {
-        const blob = new Blob([yamlOutput], { type: 'text/yaml' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'docker-compose.yml';
-        a.click();
-        URL.revokeObjectURL(url);
-        setShowSuccessModal(true);
     };
 
     return (
@@ -126,46 +117,7 @@ export function YAMLPreview({ className }: { className?: string }) {
                 </div>
 
                 {/* Warnings panel */}
-                {showWarnings && warnings.length > 0 && (
-                    <div className="flex-shrink-0 w-full md:w-80 h-40 md:h-auto border-t md:border-t-0 md:border-l bg-muted/10 backdrop-blur-sm animate-in slide-in-from-bottom-2 md:slide-in-from-right-1 duration-300 z-10">
-                        <ScrollArea className="h-full">
-                            <div className="p-4 space-y-3">
-                                {warnings.map((w) => (
-                                    <div
-                                        key={w.id}
-                                        className={cn(
-                                            "p-3 rounded-lg border text-[11px] leading-relaxed relative overflow-hidden group transition-all hover:shadow-sm",
-                                            w.type === 'tip'
-                                                ? 'bg-emerald-50/30 border-emerald-100 text-emerald-900/80'
-                                                : w.type === 'error'
-                                                    ? 'bg-red-50/30 border-red-100 text-red-900/80'
-                                                    : 'bg-amber-50/30 border-amber-100 text-amber-900/80'
-                                        )}
-                                    >
-                                        <div className="flex items-start gap-2.5">
-                                            <div className={cn(
-                                                "shrink-0 mt-0.5 w-5 h-5 rounded-full flex items-center justify-center",
-                                                w.type === 'tip' ? 'bg-emerald-100 text-emerald-600' :
-                                                    w.type === 'error' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
-                                            )}>
-                                                {w.type === 'tip' ? <Lightbulb size={12} /> : <AlertTriangle size={12} />}
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="font-medium">{w.message}</p>
-                                                {w.action && (
-                                                    <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity italic decoration-dotted underline-offset-2">
-                                                        <ChevronRight size={10} />
-                                                        <span>{w.action}</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </ScrollArea>
-                    </div>
-                )}
+                {showWarnings && <WarningsPanel warnings={warnings} />}
             </div>
         </div>
     );
