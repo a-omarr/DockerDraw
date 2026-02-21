@@ -168,3 +168,9 @@ export interface CommandItem {
     category: string;
     action: () => void;
 }
+export interface TourStep {
+    target: string;        // CSS selector for the element to highlight
+    title: string;
+    description: string;
+    position: 'top' | 'bottom' | 'left' | 'right';
+}

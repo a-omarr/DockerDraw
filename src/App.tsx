@@ -15,7 +15,8 @@ import { AddServiceModal } from './components/AddServiceModal';
 import { useAppStore } from './store/useAppStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useIsMobile, useIsTablet } from './hooks/useMediaQuery';
-import { OnboardingTour, useOnboardingTour } from './components/OnboardingTour';
+import { OnboardingTour } from './components/OnboardingTour';
+import { useOnboardingTour } from './hooks/useOnboardingTour';
 
 function useHydration() {
   const [hydrated, setHydrated] = useState(false);
