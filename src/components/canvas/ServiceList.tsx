@@ -79,10 +79,11 @@ export function ServiceList({
                     <div className="pt-6 sm:pt-8 flex justify-center">
                         <Button
                             variant="outline"
-                            className="w-full gap-2 mt-4 hover:bg-muted/50 transition-colors shadow-sm bg-background border-dashed hover:border-solid text-muted-foreground hover:text-foreground"
+                            size="default"
+                            className="h-8 gap-2 rounded-full border-dashed bg-transparent hover:bg-white transition-all shadow-none"
                             onClick={() => useAppStore.getState().setModalVisibility('showAddServiceModal', true)}
                         >
-                            <Plus size={14} />
+                            <Plus size={16} />
                             Add another service
                         </Button>
                     </div>

@@ -1,19 +1,17 @@
 import { useState } from 'react';
-import { Copy, Check, Download, AlertTriangle, Lightbulb, FileCode } from 'lucide-react';
+import { Copy, Check, AlertTriangle, Lightbulb, FileCode } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import { useAppStore } from '../store/useAppStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
-import { useAppActions } from '../hooks/useAppActions';
 import { WarningsPanel } from './WarningsPanel';
 
 export function YAMLPreview({ className }: { className?: string }) {
     const { yamlOutput, warnings } = useAppStore();
     const [copied, setCopied] = useState(false);
     const [showWarnings, setShowWarnings] = useState(true);
-    const { handleDownload } = useAppActions();
 
     const warningCount = warnings.filter((w) => w.type === 'warning' || w.type === 'error').length;
     const tipCount = warnings.filter((w) => w.type === 'tip').length;
@@ -46,8 +44,9 @@ export function YAMLPreview({ className }: { className?: string }) {
                                 className="cursor-pointer hover:bg-amber-100/50 transition-colors gap-1.5 h-6 px-2.5 border-amber-200 text-amber-700 bg-amber-50/50 font-bold text-[10px]"
                                 onClick={() => setShowWarnings(v => !v)}
                             >
-                                <AlertTriangle size={10} className="fill-amber-700/20" />
-                                {warningCount} {warningCount === 1 ? 'Warning' : 'Warnings'}
+                                <AlertTriangle size={10} className="fill-amber-700/20 shrink-0" />
+                                <span className="sm:hidden">{warningCount}</span>
+                                <span className="hidden sm:inline">{warningCount} {warningCount === 1 ? 'Warning' : 'Warnings'}</span>
                             </Badge>
                         )}
                         {tipCount > 0 && (
@@ -56,8 +55,9 @@ export function YAMLPreview({ className }: { className?: string }) {
                                 className="cursor-pointer hover:bg-emerald-100/50 transition-colors gap-1.5 h-6 px-2.5 border-emerald-200 text-emerald-700 bg-emerald-50/50 font-bold text-[10px]"
                                 onClick={() => setShowWarnings(v => !v)}
                             >
-                                <Lightbulb size={10} className="fill-emerald-700/20" />
-                                {tipCount} {tipCount === 1 ? 'Tip' : 'Tips'}
+                                <Lightbulb size={10} className="fill-emerald-700/20 shrink-0" />
+                                <span className="sm:hidden">{tipCount}</span>
+                                <span className="hidden sm:inline">{tipCount} {tipCount === 1 ? 'Tip' : 'Tips'}</span>
                             </Badge>
                         )}
                     </div>
@@ -75,15 +75,6 @@ export function YAMLPreview({ className }: { className?: string }) {
                     >
                         {copied ? <Check size={12} /> : <Copy size={12} />}
                         <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy'}</span>
-                    </Button>
-                    <Button
-                        size="sm"
-                        onClick={handleDownload}
-                        className="h-7 sm:h-8 gap-1.5 sm:gap-2 px-2 sm:px-4 text-[10px] sm:text-[11px] font-bold shadow-sm"
-                    >
-                        <Download size={12} />
-                        <span className="hidden sm:inline">Download Compose File</span>
-                        <span className="sm:hidden">Download</span>
                     </Button>
                 </div>
             </div>
