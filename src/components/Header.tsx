@@ -236,94 +236,101 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
 
                         <div className="h-4 w-[1px] bg-border mx-1" />
 
-                        {/* Desktop action buttons */}
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-9 gap-2 text-muted-foreground"
-                            onClick={() => setShowTemplateGallery(true)}
-                        >
-                            <LayoutTemplate size={14} />
-                            <span>Templates</span>
-                        </Button>
-
-                        <div className="flex items-center">
+                        {/* Templates & Load Group */}
+                        <div className="flex items-center gap-1">
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-9 gap-2 text-muted-foreground pr-2 rounded-r-none border-r border-border/50"
-                                onClick={() => setShowSaveModal(true)}
+                                className="h-9 gap-2 text-muted-foreground hover:bg-muted/50"
+                                onClick={() => setShowTemplateGallery(true)}
                             >
-                                <Save size={14} />
-                                <span>Save</span>
+                                <LayoutTemplate size={14} />
+                                <span>Templates</span>
                             </Button>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-9 px-1.5 text-muted-foreground rounded-l-none"
-                                    >
-                                        <ChevronDown size={14} />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="center">
-                                    <DropdownMenuItem onClick={() => setShowImportModal(true)} className="py-2.5">
-                                        <Upload size={14} className="mr-2.5" />
-                                        Import YAML
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+
+                            {savedProjects.length > 0 && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-9 gap-2 text-muted-foreground hover:bg-muted/50"
+                                    onClick={() => setShowLoadModal(true)}
+                                >
+                                    <FolderOpen size={14} />
+                                    <span>Load</span>
+                                </Button>
+                            )}
                         </div>
 
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className={cn(
-                                "h-9 gap-2 transition-all px-3",
-                                showYAMLPanel
-                                    ? "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary font-medium"
-                                    : "text-muted-foreground hover:bg-muted"
-                            )}
-                            onClick={toggleYAMLPanel}
-                            title={showYAMLPanel ? "Hide YAML Code" : "Show YAML Code"}
-                        >
-                            <FileCode size={14} />
-                            <span>YAML Code</span>
-                        </Button>
+                        <div className="h-4 w-[1px] bg-border mx-1" />
 
-                        {savedProjects.length > 0 && (
+                        {/* Save & Export Group */}
+                        <div className="flex items-center gap-1">
+                            <div className="flex items-center">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 gap-2 text-muted-foreground pr-2 border-r border-border/50 hover:bg-muted/50 rounded-r-none"
+                                    onClick={() => setShowSaveModal(true)}
+                                >
+                                    <Save size={14} />
+                                    <span>Save</span>
+                                </Button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-8 px-1.5 text-muted-foreground hover:bg-muted/50 rounded-l-none"
+                                        >
+                                            <ChevronDown size={14} />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="center">
+                                        <DropdownMenuItem onClick={() => setShowImportModal(true)} className="py-2.5">
+                                            <Upload size={14} className="mr-2.5" />
+                                            Import YAML
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-9 gap-2 text-muted-foreground"
-                                onClick={() => setShowLoadModal(true)}
+                                className={cn(
+                                    "h-8 gap-2 transition-all px-3 ml-1",
+                                    showYAMLPanel
+                                        ? "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary font-medium"
+                                        : "text-muted-foreground hover:bg-muted/50"
+                                )}
+                                onClick={toggleYAMLPanel}
+                                title={showYAMLPanel ? "Hide YAML Code" : "Show YAML Code"}
                             >
-                                <FolderOpen size={14} />
-                                <span>Load</span>
+                                <FileCode size={14} />
+                                <span>YAML Code</span>
                             </Button>
-                        )}
 
-                        {/* Help / Tour */}
-                        {onStartTour && (
-                            <TooltipProvider delayDuration={300}>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-9 w-9 text-muted-foreground"
-                                            onClick={onStartTour}
-                                        >
-                                            <HelpCircle size={16} />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent className="text-xs">
-                                        <p>Take a tour</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                        )}
+                            {/* Help / Tour */}
+                            {onStartTour && (
+                                <TooltipProvider delayDuration={300}>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 ml-1 text-muted-foreground hover:bg-muted/50"
+                                                onClick={onStartTour}
+                                            >
+                                                <HelpCircle size={16} />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent className="text-xs">
+                                            <p>Take a tour</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            )}
+                        </div>
                     </>
                 )}
 
