@@ -77,7 +77,9 @@ export function StatusBar() {
                     onClick={toggleYAMLPanel}
                     className={cn(
                         "flex items-center justify-center gap-1.5 transition-colors hover:text-foreground cursor-pointer min-h-[36px] min-w-[36px] sm:min-h-0 sm:min-w-0 rounded-md active:bg-muted/50 p-1 sm:p-0 z-50",
-                        showYAMLPanel ? 'text-primary' : 'text-muted-foreground/60'
+                        showYAMLPanel
+                            ? 'text-primary'
+                            : 'text-primary animate-pulse drop-shadow-[0_0_5px_rgba(59,130,246,0.6)]'
                     )}
                 >
                     <FileCode size={14} className="sm:w-2.5 sm:h-2.5" />

@@ -14,6 +14,7 @@ import {
     PanelLeftOpen,
     PanelLeftClose,
     HelpCircle,
+    FileCode,
 } from 'lucide-react';
 import {
     SiDocker,
@@ -50,6 +51,8 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
         setShowSuccessModal,
         showLibrary,
         toggleLibrary,
+        showYAMLPanel,
+        toggleYAMLPanel,
     } = useAppStore();
 
     const { pastStates, futureStates } = useStore(useAppStore.temporal);
@@ -257,6 +260,22 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                             <span>Save</span>
                         </Button>
 
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                                "h-9 gap-2 transition-all px-3",
+                                showYAMLPanel
+                                    ? "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary font-medium"
+                                    : "text-muted-foreground hover:bg-muted"
+                            )}
+                            onClick={toggleYAMLPanel}
+                            title={showYAMLPanel ? "Hide YAML Code" : "Show YAML Code"}
+                        >
+                            <FileCode size={14} />
+                            <span>YAML Code</span>
+                        </Button>
+
                         {savedProjects.length > 0 && (
                             <Button
                                 variant="ghost"
@@ -356,6 +375,10 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                             <DropdownMenuItem onClick={() => setShowSaveModal(true)} className="py-2.5">
                                 <Save size={14} className="mr-2.5" />
                                 Save Project
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={toggleYAMLPanel} className="py-2.5">
+                                <FileCode size={14} className={cn("mr-2.5", showYAMLPanel && "text-primary")} />
+                                {showYAMLPanel ? "Hide YAML Code" : "View YAML Code"}
                             </DropdownMenuItem>
                             {savedProjects.length > 0 && (
                                 <DropdownMenuItem onClick={() => setShowLoadModal(true)} className="py-2.5">
