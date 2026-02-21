@@ -11,7 +11,7 @@ import {
 } from '@dnd-kit/sortable';
 import { Trash2, Plus } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import { ServiceNode, ServiceNodeOverlay } from '../ServiceNode';
+import { ServiceNode, ServiceNodeOverlay } from '../service-node';
 import { ConfirmDialog } from '../modals';
 import { Button } from '../ui/button';
 import { DependencyFlow } from './DependencyFlow';
