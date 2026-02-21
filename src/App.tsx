@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Header } from './components/Header';
+import { Header } from './components/header';
 import { ServiceLibrary } from './components/ServiceLibrary';
 import { Canvas } from './components/canvas/Canvas';
 import { ConfigPanel } from './components/config-panel';

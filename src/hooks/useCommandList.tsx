@@ -15,6 +15,7 @@ import {
 import { useAppStore } from '../store/useAppStore';
 import { serviceTemplates } from '../data/serviceTemplates';
 import type { CommandItem } from '../types';
+import { useAppActions } from './useAppActions';
 
 export function useCommandList(search: string) {
     const {
@@ -27,20 +28,9 @@ export function useCommandList(search: string) {
         addService,
         clearAllServices,
         services,
-        yamlOutput,
-        setShowSuccessModal,
     } = useAppStore();
 
-    const handleDownload = () => {
-        const blob = new Blob([yamlOutput], { type: 'text/yaml' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'docker-compose.yml';
-        a.click();
-        URL.revokeObjectURL(url);
-        setShowSuccessModal(true);
-    };
+    const { handleDownload, handleUndo, handleRedo } = useAppActions();
 
     const commands: CommandItem[] = useMemo(() => {
         const base: CommandItem[] = [
@@ -86,13 +76,7 @@ export function useCommandList(search: string) {
                 icon: <Undo2 size={16} />,
                 shortcut: '⌘Z',
                 category: 'Edit',
-                action: () => {
-                    const temporal = (useAppStore as any).temporal.getState();
-                    temporal.pause();
-                    temporal.undo();
-                    (useAppStore.getState() as any).refreshDerived();
-                    temporal.resume();
-                },
+                action: handleUndo,
             },
             {
                 id: 'redo',
@@ -100,13 +84,7 @@ export function useCommandList(search: string) {
                 icon: <Redo2 size={16} />,
                 shortcut: '⌘⇧Z',
                 category: 'Edit',
-                action: () => {
-                    const temporal = (useAppStore as any).temporal.getState();
-                    temporal.pause();
-                    temporal.redo();
-                    (useAppStore.getState() as any).refreshDerived();
-                    temporal.resume();
-                },
+                action: handleRedo,
             },
             {
                 id: 'toggle-yaml',
@@ -145,7 +123,7 @@ export function useCommandList(search: string) {
         }));
 
         return [...base, ...serviceCommands];
-    }, [services.length, yamlOutput, setShowSuccessModal]);
+    }, [services.length, handleDownload, handleUndo, handleRedo]);
 
     const filtered = useMemo(() => {
         if (!search.trim()) return commands;

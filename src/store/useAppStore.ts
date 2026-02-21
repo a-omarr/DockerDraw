@@ -259,6 +259,7 @@ export const useAppStore = create<AppState>()(
                     const project = s.savedProjects.find((p) => p.id === id);
                     if (!project) return;
                     set({
+                        projectName: project.name,
                         services: project.services,
                         networkName: project.network,
                         environmentPreset: project.preset,
