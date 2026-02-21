@@ -35,6 +35,13 @@ import { useStore } from 'zustand';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { cn } from '@/lib/utils';
 
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
+
 export function Header({ onStartTour }: { onStartTour?: () => void }) {
     const {
         projectName,
@@ -240,25 +247,34 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                             <span>Templates</span>
                         </Button>
 
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-9 gap-2 text-muted-foreground"
-                            onClick={() => setShowImportModal(true)}
-                        >
-                            <Upload size={14} />
-                            <span>Import</span>
-                        </Button>
-
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-9 gap-2 text-muted-foreground"
-                            onClick={() => setShowSaveModal(true)}
-                        >
-                            <Save size={14} />
-                            <span>Save</span>
-                        </Button>
+                        <div className="flex items-center">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 gap-2 text-muted-foreground pr-2 rounded-r-none border-r border-border/50"
+                                onClick={() => setShowSaveModal(true)}
+                            >
+                                <Save size={14} />
+                                <span>Save</span>
+                            </Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-9 px-1.5 text-muted-foreground rounded-l-none"
+                                    >
+                                        <ChevronDown size={14} />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="center">
+                                    <DropdownMenuItem onClick={() => setShowImportModal(true)} className="py-2.5">
+                                        <Upload size={14} className="mr-2.5" />
+                                        Import YAML
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
 
                         <Button
                             variant="ghost"
@@ -288,31 +304,25 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                             </Button>
                         )}
 
-                        {/* Command Palette trigger */}
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-9 gap-2 text-muted-foreground"
-                            onClick={() => setShowCommandPalette(true)}
-                            title="Command Palette (Ctrl+K)"
-                        >
-                            <Search size={14} />
-                            <kbd className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded border border-border/50">
-                                Ctrl+K
-                            </kbd>
-                        </Button>
-
+                        {/* Help / Tour */}
                         {onStartTour && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-9 gap-2 text-muted-foreground"
-                                onClick={onStartTour}
-                                title="Take a tour"
-                            >
-                                <HelpCircle size={14} />
-                                <span>Tour</span>
-                            </Button>
+                            <TooltipProvider delayDuration={300}>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-9 w-9 text-muted-foreground"
+                                            onClick={onStartTour}
+                                        >
+                                            <HelpCircle size={16} />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="text-xs">
+                                        <p>Take a tour</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         )}
                     </>
                 )}
