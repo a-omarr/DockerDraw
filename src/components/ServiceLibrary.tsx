@@ -22,7 +22,7 @@ const CATEGORY_LABELS: Record<ServiceCategory, string> = {
 const CATEGORY_ORDER: ServiceCategory[] = ['app', 'database', 'cache', 'webserver', 'queue', 'monitoring'];
 
 export function ServiceLibrary() {
-    const { addService, services, setShowLibrary } = useAppStore();
+    const { addService, services, setModalVisibility } = useAppStore();
     const [search, setSearch] = useState('');
     const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
@@ -62,7 +62,7 @@ export function ServiceLibrary() {
                             variant="ghost"
                             size="icon"
                             className="h-6 w-6 rounded-md text-muted-foreground hover:text-foreground"
-                            onClick={() => setShowLibrary(false)}
+                            onClick={() => setModalVisibility('showLibrary', false)}
                         >
                             <X size={14} />
                         </Button>

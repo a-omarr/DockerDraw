@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
 export function ImportModal() {
-    const { showImportModal, setShowImportModal, importFromYAML } = useAppStore();
+    const { showImportModal, setModalVisibility, importFromYAML } = useAppStore();
     const [yamlText, setYamlText] = useState('');
     const [error, setError] = useState('');
     const [isDragging, setIsDragging] = useState(false);
@@ -24,7 +24,7 @@ export function ImportModal() {
         try {
             const { services, network } = parseYAMLToServices(yamlText);
             importFromYAML(services, network);
-            setShowImportModal(false);
+            setModalVisibility('showImportModal', false);
         } catch (e: any) {
             setError(e.message || 'Failed to parse YAML');
         }
@@ -62,7 +62,7 @@ services:
       POSTGRES_PASSWORD: changeme`;
 
     return (
-        <Dialog open={showImportModal} onOpenChange={setShowImportModal}>
+        <Dialog open={showImportModal} onOpenChange={(open) => setModalVisibility('showImportModal', open)}>
             <DialogContent className="max-w-xl max-h-[90vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
                 <DialogHeader className="px-6 py-4 border-b bg-muted/20">
                     <DialogTitle className="text-xl font-bold tracking-tight">Import Configuration</DialogTitle>

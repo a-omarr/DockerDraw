@@ -13,10 +13,10 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export function LoadModal() {
-    const { showLoadModal, setShowLoadModal, loadProject, deleteProject, savedProjects } = useAppStore();
+    const { showLoadModal, setModalVisibility, loadProject, deleteProject, savedProjects } = useAppStore();
 
     return (
-        <Dialog open={showLoadModal} onOpenChange={setShowLoadModal}>
+        <Dialog open={showLoadModal} onOpenChange={(open) => setModalVisibility('showLoadModal', open)}>
             <DialogContent className="max-w-lg max-h-[85vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
                 <DialogHeader className="px-6 py-5 border-b bg-muted/20">
                     <DialogTitle className="text-xl font-bold tracking-tight">Load Project</DialogTitle>
@@ -64,7 +64,7 @@ export function LoadModal() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Button
-                                                onClick={() => { loadProject(project.id); setShowLoadModal(false); }}
+                                                onClick={() => { loadProject(project.id); setModalVisibility('showLoadModal', false); }}
                                                 size="sm"
                                                 className="h-8 px-4 font-bold shadow-sm"
                                             >

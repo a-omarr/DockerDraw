@@ -19,15 +19,12 @@ import { useAppActions } from './useAppActions';
 
 export function useCommandList(search: string) {
     const {
-        setShowTemplateGallery,
-        setShowImportModal,
-        setShowSaveModal,
-        setShowLoadModal,
         toggleYAMLPanel,
         toggleLibrary,
         addService,
         clearAllServices,
         services,
+        setModalVisibility
     } = useAppStore();
 
     const { handleDownload, handleUndo, handleRedo } = useAppActions();
@@ -39,14 +36,14 @@ export function useCommandList(search: string) {
                 label: 'Browse Templates',
                 icon: <LayoutTemplate size={16} />,
                 category: 'Navigation',
-                action: () => setShowTemplateGallery(true),
+                action: () => setModalVisibility('showTemplateGallery', true),
             },
             {
                 id: 'import',
                 label: 'Import YAML',
                 icon: <Upload size={16} />,
                 category: 'Navigation',
-                action: () => setShowImportModal(true),
+                action: () => setModalVisibility('showImportModal', true),
             },
             {
                 id: 'save',
@@ -54,14 +51,14 @@ export function useCommandList(search: string) {
                 icon: <Save size={16} />,
                 shortcut: '⌘S',
                 category: 'Project',
-                action: () => setShowSaveModal(true),
+                action: () => setModalVisibility('showSaveModal', true),
             },
             {
                 id: 'load',
                 label: 'Load Project',
                 icon: <FolderOpen size={16} />,
                 category: 'Project',
-                action: () => setShowLoadModal(true),
+                action: () => setModalVisibility('showLoadModal', true),
             },
             {
                 id: 'download',
@@ -123,7 +120,7 @@ export function useCommandList(search: string) {
         }));
 
         return [...base, ...serviceCommands];
-    }, [services.length, handleDownload, handleUndo, handleRedo]);
+    }, [services.length, handleDownload, handleUndo, handleRedo, setModalVisibility, toggleYAMLPanel, toggleLibrary, clearAllServices, addService]);
 
     const filtered = useMemo(() => {
         if (!search.trim()) return commands;

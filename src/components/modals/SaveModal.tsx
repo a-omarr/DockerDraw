@@ -14,18 +14,18 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export function SaveModal() {
-    const { showSaveModal, setShowSaveModal, saveProject, projectName, services } = useAppStore();
+    const { showSaveModal, setModalVisibility, saveProject, projectName, services } = useAppStore();
     const [name, setName] = useState(projectName);
     const [saved, setSaved] = useState(false);
 
     const handleSave = () => {
         saveProject(name || projectName);
         setSaved(true);
-        setTimeout(() => setShowSaveModal(false), 800);
+        setTimeout(() => setModalVisibility('showSaveModal', false), 800);
     };
 
     return (
-        <Dialog open={showSaveModal} onOpenChange={setShowSaveModal}>
+        <Dialog open={showSaveModal} onOpenChange={(open) => setModalVisibility('showSaveModal', open)}>
             <DialogContent className="max-w-md p-0 overflow-hidden border-none shadow-2xl">
                 <DialogHeader className="px-6 py-5 border-b bg-muted/20">
                     <DialogTitle className="text-xl font-bold tracking-tight">Save Project</DialogTitle>

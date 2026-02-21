@@ -91,7 +91,7 @@ export function OnboardingTour({ isActive, onEnd }: OnboardingTourProps) {
             let aTop = 0;
             let aLeft = 0;
             let arrowRotation = '';
-            let showArrow = !isMobile;
+            const showArrow = !isMobile;
 
             if (isMobile) {
                 left = (window.innerWidth - tooltipW) / 2;

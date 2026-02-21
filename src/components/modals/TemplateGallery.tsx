@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export function TemplateGallery() {
-    const { showTemplateGallery, setShowTemplateGallery, loadTemplate } = useAppStore();
+    const { showTemplateGallery, setModalVisibility, loadTemplate } = useAppStore();
     const [search, setSearch] = useState('');
 
     const filtered = builtinTemplates.filter(
@@ -31,12 +31,12 @@ export function TemplateGallery() {
         const template = builtinTemplates.find((t) => t.id === templateId);
         if (template) {
             loadTemplate(template.services);
-            setShowTemplateGallery(false);
+            setModalVisibility('showTemplateGallery', false);
         }
     };
 
     return (
-        <Dialog open={showTemplateGallery} onOpenChange={setShowTemplateGallery}>
+        <Dialog open={showTemplateGallery} onOpenChange={(open) => setModalVisibility('showTemplateGallery', open)}>
             <DialogContent className="max-w-3xl w-[95vw] sm:w-[90vw] h-[85vh] sm:h-[80vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl rounded-xl">
                 <DialogHeader className="px-4 sm:px-6 py-4 border-b bg-muted/20">
                     <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight">Template Gallery</DialogTitle>

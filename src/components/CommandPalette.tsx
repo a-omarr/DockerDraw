@@ -14,7 +14,7 @@ import type { CommandItem } from '../types';
 export function CommandPalette() {
     const {
         showCommandPalette,
-        setShowCommandPalette,
+        setModalVisibility,
     } = useAppStore();
 
     const [search, setSearch] = useState('');
@@ -45,7 +45,7 @@ export function CommandPalette() {
     }, [selectedIndex]);
 
     const executeItem = (item: CommandItem) => {
-        setShowCommandPalette(false);
+        setModalVisibility('showCommandPalette', false);
         // Small delay so dialog closes first
         setTimeout(() => item.action(), 50);
     };
@@ -68,7 +68,7 @@ export function CommandPalette() {
     let flatIndex = 0;
 
     return (
-        <Dialog open={showCommandPalette} onOpenChange={setShowCommandPalette}>
+        <Dialog open={showCommandPalette} onOpenChange={(open) => setModalVisibility('showCommandPalette', open)}>
             <DialogContent
                 className="max-w-lg p-0 gap-0 overflow-hidden border-border/60 shadow-2xl"
                 onKeyDown={handleKeyDown}
