@@ -1,86 +1,112 @@
-# DockerDraw
+<div align="center">
+  <img src="public/favicon.svg" alt="DockerDraw Logo" width="120" />
+  <h1>DockerDraw</h1>
+  <p><strong>Visually design, configure, and export Docker Compose stacks — no terminal required.</strong></p>
 
-**Visually design, configure, and export Docker Compose stacks — no terminal required.**
+  [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+  [![React](https://img.shields.io/badge/React-19-blue?logo=react)](https://react.dev)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
+  [![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+</div>
 
-DockerDraw is a browser-based visual editor for `docker-compose.yml` files. Pick services from a library, configure ports, volumes, environment variables, and dependencies through an intuitive UI, then download a production-ready compose file in one click.
+<hr />
 
----
+## 📖 About DockerDraw
 
-## ✨ Features
+DockerDraw is a powerful, browser-based visual editor designed to simplify the creation and management of `docker-compose.yml` files. Whether you are scaffolding a complex microservices architecture or just setting up a simple LAMP stack, DockerDraw eliminates syntax errors and reduces configuration time by providing an intuitive, drag-and-drop interface.
 
-- **Visual Service Editor** — Drag-and-drop service cards on a canvas; click to configure
-- **Live YAML Preview** — See your `docker-compose.yml` update in real-time with syntax highlighting (Monaco Editor)
-- **Template Gallery** — Start from pre-configured stacks (MERN, LAMP, WordPress, etc.)
-- **Import & Export** — Paste or upload an existing `docker-compose.yml` and edit it visually
-- **Service Library** — 15+ service templates (PostgreSQL, Redis, Nginx, RabbitMQ, Elasticsearch, and more)
-- **Dependency Management** — Define `depends_on` relationships with circular-dependency detection
-- **Port Conflict Detection** — Real-time warnings when two services share the same host port
-- **Environment Presets** — Switch between Development and Production defaults (restart policies, resource limits)
-- **Undo / Redo** — Full history with `Ctrl+Z` / `Ctrl+Shift+Z`
-- **Keyboard Shortcuts & Command Palette** — Power-user friendly (`Ctrl+K`)
-- **Responsive Design** — Works on desktop, tablet, and mobile
-- **Offline Ready** — Runs entirely in the browser; no backend required
+## ✨ Key Features
 
----
+### 🎨 Visual & Intuitive
+* **Visual Service Editor**: Drag and drop service cards to build your stack visually.
+* **Service Library**: Access over 15 pre-configured service templates (PostgreSQL, Redis, Nginx, RabbitMQ, etc.).
+* **Template Gallery**: Jumpstart your project using battle-tested blueprints (e.g., MERN, WordPress).
+* **Responsive Design**: fully functional on desktop, tablet, and mobile environments.
 
-## 🛠️ Tech Stack
+### ⚙️ Powerful Configuration
+* **Live YAML Sync**: Watch your `docker-compose.yml` update in real time with a built-in Monaco Code Editor.
+* **Import & Export**: Easily import an existing `docker-compose.yml` to visualize its structure, or export your finalized stack with one click.
+* **Intelligent Validation**: 
+  * Port conflict detection alerts you when services share identical host ports.
+  * Circular dependency detection prevents invalid `depends_on` relationships.
+* **Environment Presets**: Swiftly toggle between Development and Production configurations to automatically tune restart policies and boundaries.
+
+### ⌨️ Developer Experience
+* **Undo / Redo Engine**: Complete history tracking allowing you to safely revert mistakes (`Ctrl+Z` / `Ctrl+Shift+Z`).
+* **Command Palette**: Power-user friendly command palette accessible via `Ctrl+K`.
+* **Zero Backend**: Runs entirely locally in your browser ensuring complete privacy and offline readiness.
+
+## 🛠️ Technology Stack
+
+Built with modern web technologies focusing on performance and type-safety:
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | React 19 + TypeScript |
-| Build Tool | Vite 7 |
-| Styling | Tailwind CSS 4 |
-| UI Primitives | Radix UI |
-| State | Zustand + Zundo (undo/redo) |
-| YAML | js-yaml |
-| Code Editor | Monaco Editor |
-| Drag & Drop | dnd-kit |
-| Validation | Zod |
-| Icons | Lucide React + react-icons (Simple Icons) |
-
----
+| **Core** | React 19, TypeScript |
+| **Build System** | Vite 7 |
+| **Styling** | Tailwind CSS 4, Radix UI |
+| **State Management** | Zustand (with Zundo for component history) |
+| **Editors & Parsing** | Monaco Editor, js-yaml, Zod (Validation), dnd-kit |
 
 ## 🚀 Getting Started
 
-```bash
-# Clone the repo
-git clone https://github.com/your-username/DockerDraw.git
-cd DockerDraw
+### Prerequisites
+* Node.js 18+ or later
+* npm, yarn, or pnpm
 
-# Install dependencies
-npm install
+### Local Development
 
-# Start the dev server
-npm run dev
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/DockerDraw.git
+   cd DockerDraw
+   ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-### Production build
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:5173` in your browser.
 
+### Production Build
+
+To test the optimized production build locally:
 ```bash
 npm run build
-npm run preview   # preview the production bundle locally
+npm run preview
 ```
 
----
-
-## 📂 Project Structure
+## 📂 Project Architecture
 
 ```
 src/
-├── components/      # React UI components
-│   ├── ui/          # Reusable primitives (Button, Dialog, etc.)
-│   └── ...          # Feature components (Canvas, Header, ConfigPanel, etc.)
-├── data/            # Service templates & built-in compose examples
-├── hooks/           # Custom React hooks
-├── store/           # Zustand store (useAppStore)
-├── types/           # TypeScript type definitions
-└── utils/           # YAML generation, validation, port conflict detection
+├── components/      # Specialized UI components
+│   ├── ui/          # Standardized, reusable primitives (Radix UI wrappers)
+│   ├── canvas/      # Core visual drag-and-drop editor
+│   ├── modals/      # Application dialogs and overlays
+│   └── panels/      # Configuration and property sidebars
+├── data/            # Preset service blueprints and gallery templates
+├── hooks/           # Custom React hooks (e.g., shortcut management)
+├── store/           # Global Zustand state and middleware
+├── types/           # TypeScript interfaces and domain models
+└── utils/           # Transformation logic (YAML <-> State), validations
 ```
 
----
+## 🤝 Contributing
+
+Contributions are welcome! If you've found a bug or have a feature request, please [open an issue](https://github.com/your-username/DockerDraw/issues). If you'd like to contribute code:
+
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/amazing-feature`).
+3. Commit your changes (`git commit -m 'feat: Add amazing feature'`).
+4. Push to the branch (`git push origin feature/amazing-feature`).
+5. Open a Pull Request.
 
 ## 📄 License
 
-MIT
+This project is licensed under the MIT License - see the `LICENSE` file for details.
