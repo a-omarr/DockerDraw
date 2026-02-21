@@ -7,6 +7,9 @@
   [![React](https://img.shields.io/badge/React-19-blue?logo=react)](https://react.dev)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
   [![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+
+  <br />
+  <img src="public/screenshot.png" alt="DockerDraw Dashboard" width="100%" style="border-radius: 8px; border: 1px solid #eee;" />
 </div>
 
 <hr />
@@ -56,22 +59,14 @@ Built with modern web technologies focusing on performance and type-safety:
 
 ### Local Development
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/DockerDraw.git
-   cd DockerDraw
-   ```
+```bash
+git clone https://github.com/a-omarr/DockerDraw
+cd DockerDraw
+npm install
+npm run dev
+```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-   Open `http://localhost:5173` in your browser.
+Open `http://localhost:5173` in your browser.
 
 ### Production Build
 
@@ -99,13 +94,7 @@ src/
 
 ## 🤝 Contributing
 
-Contributions are welcome! If you've found a bug or have a feature request, please [open an issue](https://github.com/your-username/DockerDraw/issues). If you'd like to contribute code:
-
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/amazing-feature`).
-3. Commit your changes (`git commit -m 'feat: Add amazing feature'`).
-4. Push to the branch (`git push origin feature/amazing-feature`).
-5. Open a Pull Request.
+Issues and PRs are welcome! If you've found a bug or have a feature request, please [open an issue](https://github.com/a-omarr/DockerDraw/issues).
 
 ## 📄 License
 
