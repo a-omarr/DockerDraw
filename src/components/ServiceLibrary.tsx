@@ -17,9 +17,10 @@ const CATEGORY_LABELS: Record<ServiceCategory, string> = {
     queue: 'Message Queues',
     app: 'App Servers',
     monitoring: 'Monitoring',
+    auth: 'Auth & Identity',
 };
 
-const CATEGORY_ORDER: ServiceCategory[] = ['app', 'database', 'cache', 'webserver', 'queue', 'monitoring'];
+const CATEGORY_ORDER: ServiceCategory[] = ['app', 'database', 'cache', 'webserver', 'queue', 'monitoring', 'auth'];
 
 export function ServiceLibrary() {
     const { addService, services, setModalVisibility } = useAppStore();

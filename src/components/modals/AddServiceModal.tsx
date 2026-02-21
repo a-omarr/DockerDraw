@@ -22,9 +22,10 @@ const CATEGORY_META: Record<ServiceCategory, { label: string; emoji: string }> =
     queue: { label: 'Message Queues', emoji: '📨' },
     app: { label: 'App & Backend', emoji: '📦' },
     monitoring: { label: 'Monitoring & Tools', emoji: '📊' },
+    auth: { label: 'Auth & Identity', emoji: '🔐' },
 };
 
-const CATEGORY_ORDER: ServiceCategory[] = ['database', 'app', 'cache', 'webserver', 'queue', 'monitoring'];
+const CATEGORY_ORDER: ServiceCategory[] = ['database', 'app', 'cache', 'webserver', 'queue', 'monitoring', 'auth'];
 
 interface AddServiceModalProps {
     open: boolean;
