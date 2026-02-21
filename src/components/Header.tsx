@@ -209,7 +209,7 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                                     <ChevronDown size={12} className="opacity-50" />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuContent align="center" className="w-56">
                                 {(['development', 'production'] as const).map((preset) => (
                                     <DropdownMenuItem
                                         key={preset}
