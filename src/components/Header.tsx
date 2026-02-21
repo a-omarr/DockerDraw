@@ -31,7 +31,8 @@ import {
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { useStore } from 'zustand';
-import { useIsMobile } from '@/hooks/useMediaQuery';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { cn } from '@/lib/utils';
 
 export function Header({ onStartTour }: { onStartTour?: () => void }) {
     const {
@@ -55,7 +56,9 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
     const canUndo = pastStates.length > 0;
     const canRedo = futureStates.length > 0;
 
-    const isMobile = useIsMobile();
+    // Trigger mobile-style compact nav when < 1350px
+    const isCompact = useMediaQuery('(max-width: 1350px)');
+    const isMobile = useMediaQuery('(max-width: 639px)');
 
     const [editingName, setEditingName] = useState(false);
     const [tempName, setTempName] = useState(projectName);
@@ -96,11 +99,11 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
         <header className="flex items-center justify-between px-3 sm:px-6 py-3 border-b bg-background h-14 sticky top-0 z-50">
             {/* Left: Logo + Project Name */}
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                {/* Library toggle on mobile/tablet */}
+                {/* Library toggle on compact sizes */}
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 lg:hidden shrink-0"
+                    className={cn("h-8 w-8 shrink-0", !isCompact && "hidden")}
                     onClick={toggleLibrary}
                     title={showLibrary ? 'Hide Library' : 'Show Library'}
                 >
@@ -146,86 +149,84 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-                {/* Undo/Redo */}
-                <div className="hidden sm:flex items-center gap-0.5">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground"
-                        onClick={handleUndo}
-                        disabled={!canUndo}
-                        title="Undo (Ctrl+Z)"
-                    >
-                        <Undo2 size={14} />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground"
-                        onClick={handleRedo}
-                        disabled={!canRedo}
-                        title="Redo (Ctrl+Shift+Z)"
-                    >
-                        <Redo2 size={14} />
-                    </Button>
-                </div>
-
-                <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 hidden sm:block" />
-
-                {/* Environment Preset Toggle — hidden on mobile */}
-                <div className="hidden sm:block">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className={`h-9 gap-1.5 sm:gap-2 font-medium text-xs sm:text-sm ${environmentPreset === 'development'
-                                    ? 'border-emerald-200 bg-emerald-50/50 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800'
-                                    : 'border-orange-200 bg-orange-50/50 text-orange-700 hover:bg-orange-50 hover:text-orange-800'
-                                    }`}
-                            >
-                                {environmentPreset === 'development' ? (
-                                    <SiVite size={14} className="text-emerald-600" />
-                                ) : (
-                                    <SiDocker size={14} className="text-orange-600" />
-                                )}
-                                <span className="hidden sm:inline">
-                                    {environmentPreset === 'development' ? 'Development' : 'Production'}
-                                </span>
-                                <ChevronDown size={12} className="opacity-50" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56">
-                            {(['development', 'production'] as const).map((preset) => (
-                                <DropdownMenuItem
-                                    key={preset}
-                                    onClick={() => setEnvironmentPreset(preset)}
-                                    className="flex flex-col items-start gap-0.5"
-                                >
-                                    <div className="flex items-center gap-2 font-medium capitalize">
-                                        {preset === 'development' ? (
-                                            <SiVite size={12} className="text-emerald-600" />
-                                        ) : (
-                                            <SiDocker size={12} className="text-orange-600" />
-                                        )}
-                                        {preset}
-                                    </div>
-                                    <span className="text-[10px] text-muted-foreground">
-                                        {preset === 'development'
-                                            ? 'Hot reload, verbose logs, exposed ports'
-                                            : 'Restart policies, resource limits, health checks'}
-                                    </span>
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-
-                <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 hidden sm:block" />
-
-                {/* Desktop action buttons */}
-                {!isMobile && (
+                {!isCompact && (
                     <>
+                        {/* Undo/Redo */}
+                        <div className="flex items-center gap-0.5">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground"
+                                onClick={handleUndo}
+                                disabled={!canUndo}
+                                title="Undo (Ctrl+Z)"
+                            >
+                                <Undo2 size={14} />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground"
+                                onClick={handleRedo}
+                                disabled={!canRedo}
+                                title="Redo (Ctrl+Shift+Z)"
+                            >
+                                <Redo2 size={14} />
+                            </Button>
+                        </div>
+
+                        <div className="h-4 w-[1px] bg-border mx-1" />
+
+                        {/* Environment Preset Toggle */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className={`h-9 gap-2 font-medium text-sm ${environmentPreset === 'development'
+                                        ? 'border-emerald-200 bg-emerald-50/50 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800'
+                                        : 'border-orange-200 bg-orange-50/50 text-orange-700 hover:bg-orange-50 hover:text-orange-800'
+                                        }`}
+                                >
+                                    {environmentPreset === 'development' ? (
+                                        <SiVite size={14} className="text-emerald-600" />
+                                    ) : (
+                                        <SiDocker size={14} className="text-orange-600" />
+                                    )}
+                                    <span>
+                                        {environmentPreset === 'development' ? 'Development' : 'Production'}
+                                    </span>
+                                    <ChevronDown size={12} className="opacity-50" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56">
+                                {(['development', 'production'] as const).map((preset) => (
+                                    <DropdownMenuItem
+                                        key={preset}
+                                        onClick={() => setEnvironmentPreset(preset)}
+                                        className="flex flex-col items-start gap-0.5"
+                                    >
+                                        <div className="flex items-center gap-2 font-medium capitalize">
+                                            {preset === 'development' ? (
+                                                <SiVite size={12} className="text-emerald-600" />
+                                            ) : (
+                                                <SiDocker size={12} className="text-orange-600" />
+                                            )}
+                                            {preset}
+                                        </div>
+                                        <span className="text-[10px] text-muted-foreground">
+                                            {preset === 'development'
+                                                ? 'Hot reload, verbose logs, exposed ports'
+                                                : 'Restart policies, resource limits, health checks'}
+                                        </span>
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <div className="h-4 w-[1px] bg-border mx-1" />
+
+                        {/* Desktop action buttons */}
                         <Button
                             variant="ghost"
                             size="sm"
@@ -233,7 +234,7 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                             onClick={() => setShowTemplateGallery(true)}
                         >
                             <LayoutTemplate size={14} />
-                            <span className="hidden lg:inline">Templates</span>
+                            <span>Templates</span>
                         </Button>
 
                         <Button
@@ -243,7 +244,7 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                             onClick={() => setShowImportModal(true)}
                         >
                             <Upload size={14} />
-                            <span className="hidden lg:inline">Import</span>
+                            <span>Import</span>
                         </Button>
 
                         <Button
@@ -253,7 +254,7 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                             onClick={() => setShowSaveModal(true)}
                         >
                             <Save size={14} />
-                            <span className="hidden lg:inline">Save</span>
+                            <span>Save</span>
                         </Button>
 
                         {savedProjects.length > 0 && (
@@ -264,7 +265,7 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                                 onClick={() => setShowLoadModal(true)}
                             >
                                 <FolderOpen size={14} />
-                                <span className="hidden lg:inline">Load</span>
+                                <span>Load</span>
                             </Button>
                         )}
 
@@ -277,7 +278,7 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                             title="Command Palette (Ctrl+K)"
                         >
                             <Search size={14} />
-                            <kbd className="hidden lg:inline text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded border border-border/50">
+                            <kbd className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded border border-border/50">
                                 Ctrl+K
                             </kbd>
                         </Button>
@@ -291,57 +292,85 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                                 title="Take a tour"
                             >
                                 <HelpCircle size={14} />
-                                <span className="hidden lg:inline">Tour</span>
+                                <span>Tour</span>
                             </Button>
                         )}
                     </>
                 )}
 
-                {/* Mobile overflow menu */}
-                {isMobile && (
+                {/* Compact/Mobile overflow menu */}
+                {isCompact && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground">
-                                <Menu size={18} />
+                            <Button
+                                variant={isMobile ? "ghost" : "outline"}
+                                size={isMobile ? "icon" : "sm"}
+                                className={cn("h-9 text-muted-foreground", isMobile ? "w-9" : "px-3 gap-2 font-medium bg-muted/40")}
+                            >
+                                <Menu size={isMobile ? 18 : 14} />
+                                {!isMobile && <span>Menu</span>}
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-52">
-                            <DropdownMenuItem onClick={handleUndo} disabled={!canUndo}>
-                                <Undo2 size={14} className="mr-2" />
-                                Undo
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleRedo} disabled={!canRedo}>
-                                <Redo2 size={14} className="mr-2" />
-                                Redo
-                            </DropdownMenuItem>
+                        <DropdownMenuContent align="end" className="w-56 overflow-hidden">
+                            <div className="flex items-center px-1 py-1">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="flex-1 justify-center rounded-sm h-8"
+                                    onClick={handleUndo}
+                                    disabled={!canUndo}
+                                >
+                                    <Undo2 size={14} />
+                                </Button>
+                                <div className="w-[1px] h-4 bg-border mx-1" />
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="flex-1 justify-center rounded-sm h-8"
+                                    onClick={handleRedo}
+                                    disabled={!canRedo}
+                                >
+                                    <Redo2 size={14} />
+                                </Button>
+                            </div>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => setEnvironmentPreset(environmentPreset === 'development' ? 'production' : 'development')}>
-                                {environmentPreset === 'development' ? <SiDocker size={14} className="mr-2 text-orange-600" /> : <SiVite size={14} className="mr-2 text-emerald-600" />}
+                            <DropdownMenuItem onClick={() => setEnvironmentPreset(environmentPreset === 'development' ? 'production' : 'development')} className="py-2.5">
+                                {environmentPreset === 'development' ? <SiDocker size={14} className="mr-2.5 text-orange-600" /> : <SiVite size={14} className="mr-2.5 text-emerald-600" />}
                                 Switch to {environmentPreset === 'development' ? 'Production' : 'Development'}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => setShowCommandPalette(true)}>
-                                <Search size={14} className="mr-2" />
+                            <DropdownMenuItem onClick={() => setShowCommandPalette(true)} className="py-2.5">
+                                <Search size={14} className="mr-2.5" />
                                 Command Palette
+                                <kbd className="ml-auto text-[10px] font-mono opacity-50">Ctrl+K</kbd>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setShowTemplateGallery(true)}>
-                                <LayoutTemplate size={14} className="mr-2" />
+                            <DropdownMenuItem onClick={() => setShowTemplateGallery(true)} className="py-2.5">
+                                <LayoutTemplate size={14} className="mr-2.5" />
                                 Templates
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setShowImportModal(true)}>
-                                <Upload size={14} className="mr-2" />
+                            <DropdownMenuItem onClick={() => setShowImportModal(true)} className="py-2.5">
+                                <Upload size={14} className="mr-2.5" />
                                 Import YAML
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => setShowSaveModal(true)}>
-                                <Save size={14} className="mr-2" />
+                            <DropdownMenuItem onClick={() => setShowSaveModal(true)} className="py-2.5">
+                                <Save size={14} className="mr-2.5" />
                                 Save Project
                             </DropdownMenuItem>
                             {savedProjects.length > 0 && (
-                                <DropdownMenuItem onClick={() => setShowLoadModal(true)}>
-                                    <FolderOpen size={14} className="mr-2" />
+                                <DropdownMenuItem onClick={() => setShowLoadModal(true)} className="py-2.5">
+                                    <FolderOpen size={14} className="mr-2.5" />
                                     Load Project
                                 </DropdownMenuItem>
+                            )}
+                            {onStartTour && (
+                                <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={onStartTour} className="py-2.5">
+                                        <HelpCircle size={14} className="mr-2.5" />
+                                        Take a Tour
+                                    </DropdownMenuItem>
+                                </>
                             )}
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -349,7 +378,7 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
 
                 <Button
                     size="sm"
-                    className="h-9 gap-2 ml-1 sm:ml-2 shadow-sm"
+                    className="h-9 gap-2 ml-1 sm:ml-2 shadow-sm shrink-0"
                     onClick={handleDownload}
                     data-tour="download-btn"
                 >
