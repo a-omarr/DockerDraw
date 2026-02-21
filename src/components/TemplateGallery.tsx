@@ -37,16 +37,16 @@ export function TemplateGallery() {
 
     return (
         <Dialog open={showTemplateGallery} onOpenChange={setShowTemplateGallery}>
-            <DialogContent className="max-w-3xl h-[80vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
-                <DialogHeader className="px-6 py-4 border-b bg-muted/20">
-                    <DialogTitle className="text-xl font-bold tracking-tight">Template Gallery</DialogTitle>
+            <DialogContent className="max-w-3xl w-[95vw] sm:w-[90vw] h-[85vh] sm:h-[80vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl rounded-xl">
+                <DialogHeader className="px-4 sm:px-6 py-4 border-b bg-muted/20">
+                    <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight">Template Gallery</DialogTitle>
                     <DialogDescription className="text-xs">
                         Start your project with a professionally configured Docker stack.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="p-6 pb-0">
-                    <div className="relative mb-6">
+                <div className="p-4 sm:p-6 pb-0">
+                    <div className="relative mb-4 sm:mb-6">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
                         <Input
                             value={search}
@@ -58,15 +58,15 @@ export function TemplateGallery() {
                     </div>
                 </div>
 
-                <ScrollArea className="flex-1 px-6 pb-6">
-                    <div className="grid gap-4 pr-3">
+                <ScrollArea className="flex-1 px-4 sm:px-6 pb-4 sm:pb-6">
+                    <div className="grid gap-3 sm:gap-4 pr-2 sm:pr-3">
                         {filtered.map((template) => (
                             <Card
                                 key={template.id}
-                                className="group p-5 hover:border-primary/30 hover:shadow-md transition-all cursor-default border-border/60"
+                                className="group p-4 sm:p-5 hover:border-primary/30 hover:shadow-md transition-all cursor-default border-border/60"
                             >
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex-1 space-y-3">
+                                <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                                    <div className="flex-1 space-y-3 w-full">
                                         <div>
                                             <div className="flex items-center gap-2 mb-1.5">
                                                 <h3 className="font-bold text-base text-foreground group-hover:text-primary transition-colors">
@@ -117,7 +117,7 @@ export function TemplateGallery() {
                                     </div>
                                     <Button
                                         onClick={() => handleLoad(template.id)}
-                                        className="shrink-0 h-9 gap-2 px-4 shadow-sm"
+                                        className="shrink-0 w-full sm:w-auto h-9 gap-2 px-4 shadow-sm"
                                         size="sm"
                                     >
                                         <Zap size={14} className="fill-current" />
