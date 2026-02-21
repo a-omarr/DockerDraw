@@ -5,7 +5,7 @@ import { EXAMPLE_COMPOSE } from '../../data/exampleCompose';
 import { Button } from '../ui/button';
 
 export function EmptyCanvas() {
-    const { toggleLibrary, setShowCommandPalette, importFromYAML } = useAppStore();
+    const { toggleLibrary, setModalVisibility, importFromYAML } = useAppStore();
 
     const handleAddExample = () => {
         try {
@@ -79,7 +79,7 @@ export function EmptyCanvas() {
 
             {/* Command palette hint */}
             <button
-                onClick={() => setShowCommandPalette(true)}
+                onClick={() => setModalVisibility('showCommandPalette', true)}
                 className="mt-6 flex items-center gap-2 text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition-colors cursor-pointer"
             >
                 Press

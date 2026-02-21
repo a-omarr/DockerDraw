@@ -20,6 +20,8 @@ import { useAppStore } from './store/useAppStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useIsMobile, useIsTablet } from './hooks/useMediaQuery';
 import { useOnboardingTour } from './hooks/useOnboardingTour';
+import { decodeServicesFromURL, clearURLState } from './utils/shareUrl';
+import { sanitizeName } from './utils/yamlImport';
 
 function useHydration() {
   const [hydrated, setHydrated] = useState(false);
@@ -41,11 +43,30 @@ export default function App() {
     showSaveModal,
     showLoadModal,
     showAddServiceModal,
-    setShowAddServiceModal,
+    setModalVisibility,
     showSuccessModal,
     selectedServiceId,
     refreshDerived,
+    importFromYAML,
+    networkName,
+    isDirty,
   } = useAppStore();
+
+  // Refresh warning for unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        // Note: Modern browsers (Chrome, Firefox, Safari) generally ignore custom messages 
+        // in beforeunload events for security reasons and show a generic warning instead.
+        // However, we set the requested text here for older browsers that still support it.
+        e.returnValue = 'If you proceed evrything he has done will be reset and deleted';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
 
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
@@ -56,9 +77,60 @@ export default function App() {
   // Onboarding tour
   const { isActive: tourActive, startTour, endTour } = useOnboardingTour();
 
-  // Initial YAML generation on mount
+  // Initial YAML generation on mount + Handle shared URL
   useEffect(() => {
-    refreshDerived();
+    let mounted = true;
+
+    const handleInitialLoad = async () => {
+      refreshDerived();
+
+      const shared = decodeServicesFromURL();
+      if (shared && shared.length > 0 && mounted) {
+        // Robust Validation
+        const MAX_SERVICES = 50;
+        const validatedServices = shared.slice(0, MAX_SERVICES).map(svc => {
+          const IMAGE_REGEX = /^[a-z0-9/._:-]+$/;
+          const validImage = svc.image && IMAGE_REGEX.test(svc.image) ? svc.image : 'nginx:alpine';
+          const validName = sanitizeName(svc.name);
+
+          const {
+            id = crypto.randomUUID(),
+            templateId = 'custom-service',
+            ports = [],
+            environment = [],
+            volumes = [],
+            networks = [],
+            dependsOn = [],
+            ...rest
+          } = svc;
+
+          return {
+            id,
+            templateId,
+            ports: Array.isArray(ports) ? ports : [],
+            environment: Array.isArray(environment) ? environment : [],
+            volumes: Array.isArray(volumes) ? volumes : [],
+            networks: Array.isArray(networks) ? networks : [],
+            dependsOn: Array.isArray(dependsOn) ? dependsOn : [],
+            ...rest,
+            name: validName,
+            image: validImage
+          };
+        });
+
+        if (validatedServices.length > 0) {
+          // Delay slightly to ensure store is ready and UI has settled
+          setTimeout(() => {
+            if (!mounted) return;
+            importFromYAML(validatedServices, networkName);
+            clearURLState();
+          }, 100);
+        }
+      }
+    };
+
+    handleInitialLoad();
+    return () => { mounted = false; };
   }, []);
 
   // Show loading screen while store hydrates from localStorage
@@ -127,7 +199,7 @@ export default function App() {
       {showImportModal && <ImportModal />}
       {showSaveModal && <SaveModal />}
       {showLoadModal && <LoadModal />}
-      <AddServiceModal open={showAddServiceModal} onOpenChange={setShowAddServiceModal} />
+      <AddServiceModal open={showAddServiceModal} onOpenChange={(show) => setModalVisibility('showAddServiceModal', show)} />
       {showSuccessModal && <DownloadSuccessModal />}
       <CommandPalette />
       <OnboardingTour isActive={tourActive} onEnd={endTour} />

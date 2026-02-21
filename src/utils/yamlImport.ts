@@ -12,14 +12,14 @@ function stripHtml(str: string): string {
 }
 
 /** Sanitize a service name to safe characters only */
-function sanitizeName(raw: string): string {
+export function sanitizeName(raw: string): string {
     const stripped = stripHtml(raw);
     const safe = stripped.replace(/[^a-zA-Z0-9_.-]/g, '_');
     return safe.slice(0, MAX_NAME_LENGTH) || 'service';
 }
 
 /** Sanitize any string value (env vars, commands, image names) */
-function sanitizeValue(raw: unknown): string {
+export function sanitizeValue(raw: unknown): string {
     const str = String(raw ?? '');
     // Remove <script> blocks and stray HTML tags
     return str

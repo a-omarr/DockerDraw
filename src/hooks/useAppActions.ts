@@ -4,12 +4,12 @@ import { downloadYAML } from '../utils/downloadYAML';
 export function useAppActions() {
     const {
         yamlOutput,
-        setShowSuccessModal,
+        setModalVisibility,
     } = useAppStore();
 
     const handleDownload = () => {
         downloadYAML(yamlOutput);
-        setShowSuccessModal(true);
+        setModalVisibility('showSuccessModal', true);
     };
 
     const handleUndo = () => {

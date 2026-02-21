@@ -8,43 +8,10 @@ import type {
     ValidationWarning,
     PortConflict,
 } from '../types';
-import type { ServiceTemplate } from '../types';
 
 import { serviceTemplates } from '../data/serviceTemplates';
-import { generateDockerCompose } from '../utils/yamlGenerator';
-import { detectPortConflicts } from '../utils/portConflict';
-import { validateServices } from '../utils/validation';
-import { resolveDependencyNamesToIds } from '../utils/serviceUtils';
-
-function createServiceFromTemplate(template: ServiceTemplate): Service {
-    return {
-        id: crypto.randomUUID(),
-        name: template.id.replace(/[^a-z0-9]/g, '_'),
-        templateId: template.id,
-        image: template.defaultImage,
-        ports: template.defaultPorts.map((p) => ({ ...p })),
-        environment: template.defaultEnvironment.map((e) => ({ ...e })),
-        volumes: template.defaultVolumes.map((v) => ({ ...v })),
-        networks: [template.defaultNetwork],
-        dependsOn: [],
-        restart: 'no',
-        buildContext: template.defaultBuildContext,
-        dockerfile: template.defaultDockerfile,
-        buildTarget: template.defaultBuildTarget,
-        buildArgs: template.defaultBuildArgs ? { ...template.defaultBuildArgs } : undefined,
-    };
-}
-
-function computeDerived(services: Service[], networkName: string, environmentPreset: EnvironmentPreset) {
-    return {
-        yamlOutput: generateDockerCompose(services, networkName, environmentPreset),
-        warnings: validateServices(services),
-        portConflicts: detectPortConflicts(services),
-        totalPorts: services.reduce((acc, s) => acc + s.ports.length, 0),
-        totalVolumes: services.reduce((acc, s) => acc + s.volumes.length, 0),
-        totalEnvVars: services.reduce((acc, s) => acc + s.environment.length, 0),
-    };
-}
+import { resolveDependencyNamesToIds, createServiceFromTemplate } from '../utils/serviceUtils';
+import { computeDerived } from '../utils/storeUtils';
 
 interface AppState {
     // Project
@@ -78,6 +45,8 @@ interface AppState {
     // Saved projects
     savedProjects: SavedProject[];
 
+    isDirty: boolean;
+
     // Actions
     setProjectName: (name: string) => void;
     setNetworkName: (name: string) => void;
@@ -93,21 +62,14 @@ interface AppState {
 
     toggleYAMLPanel: () => void;
     toggleLibrary: () => void;
-    setShowYAMLPanel: (show: boolean) => void;
-    setShowLibrary: (show: boolean) => void;
-    setShowTemplateGallery: (show: boolean) => void;
-    setShowImportModal: (show: boolean) => void;
-    setShowSaveModal: (show: boolean) => void;
-    setShowLoadModal: (show: boolean) => void;
-    setShowSuccessModal: (show: boolean) => void;
-    setShowCommandPalette: (show: boolean) => void;
-    setShowAddServiceModal: (show: boolean) => void;
+    setModalVisibility: (modal: 'showYAMLPanel' | 'showLibrary' | 'showTemplateGallery' | 'showImportModal' | 'showSaveModal' | 'showLoadModal' | 'showSuccessModal' | 'showCommandPalette' | 'showAddServiceModal', show: boolean) => void;
 
     saveProject: (name: string) => void;
     loadProject: (id: string) => void;
     deleteProject: (id: string) => void;
     importFromYAML: (services: Service[], network: string) => void;
     loadTemplate: (services: Omit<Service, 'id'>[]) => void;
+    setIsDirty: (isDirty: boolean) => void;
 
     refreshDerived: () => void;
 }
@@ -139,16 +101,17 @@ export const useAppStore = create<AppState>()(
                 totalPorts: 0,
                 totalVolumes: 0,
                 totalEnvVars: 0,
+                isDirty: false,
 
                 savedProjects: [],
 
                 setProjectName: (name) => {
                     const s = get();
-                    set({ projectName: name, ...computeDerived(s.services, s.networkName, s.environmentPreset) });
+                    set({ projectName: name, isDirty: true, ...computeDerived(s.services, s.networkName, s.environmentPreset) });
                 },
                 setNetworkName: (name) => {
                     const s = get();
-                    set({ networkName: name, ...computeDerived(s.services, name, s.environmentPreset) });
+                    set({ networkName: name, isDirty: true, ...computeDerived(s.services, name, s.environmentPreset) });
                 },
                 setEnvironmentPreset: (preset) => {
                     const s = get();
@@ -159,7 +122,7 @@ export const useAppStore = create<AppState>()(
                             return { ...svc, restart: 'no' as const };
                         }
                     });
-                    set({ environmentPreset: preset, services: updated, ...computeDerived(updated, s.networkName, preset) });
+                    set({ environmentPreset: preset, services: updated, isDirty: true, ...computeDerived(updated, s.networkName, preset) });
                 },
 
                 addService: (templateId) => {
@@ -174,7 +137,7 @@ export const useAppStore = create<AppState>()(
                         newService.name = `${newService.name}_${count}`;
                     }
                     const newServices = [...s.services, newService];
-                    set({ services: newServices, ...computeDerived(newServices, s.networkName, s.environmentPreset) });
+                    set({ services: newServices, isDirty: true, ...computeDerived(newServices, s.networkName, s.environmentPreset) });
                 },
 
                 removeService: (id) => {
@@ -185,6 +148,7 @@ export const useAppStore = create<AppState>()(
                     set({
                         services: newServices,
                         selectedServiceId: s.selectedServiceId === id ? null : s.selectedServiceId,
+                        isDirty: true,
                         ...computeDerived(newServices, s.networkName, s.environmentPreset),
                     });
                 },
@@ -192,7 +156,7 @@ export const useAppStore = create<AppState>()(
                 updateService: (id, updates) => {
                     const s = get();
                     const newServices = s.services.map((svc) => (svc.id === id ? { ...svc, ...updates } : svc));
-                    set({ services: newServices, ...computeDerived(newServices, s.networkName, s.environmentPreset) });
+                    set({ services: newServices, isDirty: true, ...computeDerived(newServices, s.networkName, s.environmentPreset) });
                 },
 
                 selectService: (id) => set({ selectedServiceId: id }),
@@ -205,12 +169,12 @@ export const useAppStore = create<AppState>()(
                     const reordered = [...s.services];
                     const [moved] = reordered.splice(oldIndex, 1);
                     reordered.splice(newIndex, 0, moved);
-                    set({ services: reordered, ...computeDerived(reordered, s.networkName, s.environmentPreset) });
+                    set({ services: reordered, isDirty: true, ...computeDerived(reordered, s.networkName, s.environmentPreset) });
                 },
 
                 clearAllServices: () => {
                     const s = get();
-                    set({ services: [], selectedServiceId: null, ...computeDerived([], s.networkName, s.environmentPreset) });
+                    set({ services: [], selectedServiceId: null, isDirty: true, ...computeDerived([], s.networkName, s.environmentPreset) });
                 },
 
                 duplicateService: (id) => {
@@ -224,20 +188,12 @@ export const useAppStore = create<AppState>()(
                         ports: original.ports.map((p) => ({ ...p, host: p.host + 1 })),
                     };
                     const newServices = [...s.services, copy];
-                    set({ services: newServices, ...computeDerived(newServices, s.networkName, s.environmentPreset) });
+                    set({ services: newServices, isDirty: true, ...computeDerived(newServices, s.networkName, s.environmentPreset) });
                 },
 
                 toggleYAMLPanel: () => set((state) => ({ showYAMLPanel: !state.showYAMLPanel })),
                 toggleLibrary: () => set((state) => ({ showLibrary: !state.showLibrary })),
-                setShowYAMLPanel: (show) => set({ showYAMLPanel: show }),
-                setShowLibrary: (show) => set({ showLibrary: show }),
-                setShowTemplateGallery: (show) => set({ showTemplateGallery: show }),
-                setShowImportModal: (show) => set({ showImportModal: show }),
-                setShowSaveModal: (show) => set({ showSaveModal: show }),
-                setShowLoadModal: (show) => set({ showLoadModal: show }),
-                setShowSuccessModal: (show) => set({ showSuccessModal: show }),
-                setShowCommandPalette: (show) => set({ showCommandPalette: show }),
-                setShowAddServiceModal: (show) => set({ showAddServiceModal: show }),
+                setModalVisibility: (modal, show) => set({ [modal]: show }),
 
                 saveProject: (name) => {
                     const { services, networkName, environmentPreset, savedProjects } = get();
@@ -248,6 +204,7 @@ export const useAppStore = create<AppState>()(
                             savedProjects: savedProjects.map((p) =>
                                 p.id === existing.id ? { ...p, services, network: networkName, preset: environmentPreset, updatedAt: now } : p
                             ),
+                            isDirty: false,
                         });
                     } else {
                         const project: SavedProject = {
@@ -259,7 +216,7 @@ export const useAppStore = create<AppState>()(
                             createdAt: now,
                             updatedAt: now,
                         };
-                        set((state) => ({ savedProjects: [...state.savedProjects, project] }));
+                        set((state) => ({ savedProjects: [...state.savedProjects, project], isDirty: false }));
                     }
                 },
 
@@ -273,6 +230,7 @@ export const useAppStore = create<AppState>()(
                         networkName: project.network,
                         environmentPreset: project.preset,
                         selectedServiceId: null,
+                        isDirty: false,
                         ...computeDerived(project.services, project.network, project.preset),
                     });
                 },
@@ -283,20 +241,22 @@ export const useAppStore = create<AppState>()(
 
                 importFromYAML: (services, network) => {
                     const s = get();
-                    set({ services, networkName: network, selectedServiceId: null, ...computeDerived(services, network, s.environmentPreset) });
+                    set({ services, networkName: network, selectedServiceId: null, isDirty: false, ...computeDerived(services, network, s.environmentPreset) });
                 },
 
                 loadTemplate: (services) => {
                     const s = get();
                     const renamedServices = services.map((svc) => ({ ...svc, id: crypto.randomUUID() }));
                     const resolvedServices = resolveDependencyNamesToIds(renamedServices as Service[]);
-                    set({ services: resolvedServices, selectedServiceId: null, ...computeDerived(resolvedServices, s.networkName, s.environmentPreset) });
+                    set({ services: resolvedServices, selectedServiceId: null, isDirty: true, ...computeDerived(resolvedServices, s.networkName, s.environmentPreset) });
                 },
 
                 refreshDerived: () => {
                     const { services, networkName, environmentPreset } = get();
                     set({ ...computeDerived(services, networkName, environmentPreset) });
                 },
+
+                setIsDirty: (isDirty) => set({ isDirty }),
             }),
             {
                 name: 'dockerdraw-store',

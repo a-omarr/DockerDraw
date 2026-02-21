@@ -4,7 +4,6 @@ import {
     Layers,
     FileCode,
     Library,
-    Command,
 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { cn } from '@/lib/utils';
@@ -16,7 +15,6 @@ export function StatusBar() {
         showLibrary,
         toggleYAMLPanel,
         toggleLibrary,
-        setShowCommandPalette,
         environmentPreset,
         totalPorts,
         totalVolumes,
@@ -83,16 +81,6 @@ export function StatusBar() {
                 >
                     <FileCode size={14} className="sm:w-2.5 sm:h-2.5" />
                     <span className="hidden sm:inline">YAML</span>
-                </button>
-                <div className="h-3 w-[1px] bg-border hidden sm:block" />
-                <button
-                    onClick={() => setShowCommandPalette(true)}
-                    className="hidden sm:flex items-center gap-1 text-muted-foreground/50 hover:text-foreground transition-colors cursor-pointer"
-                >
-                    <Command size={9} />
-                    <kbd className="font-mono text-[9px] bg-muted px-1 rounded border border-border/50">
-                        Ctrl+K
-                    </kbd>
                 </button>
             </div>
         </footer>

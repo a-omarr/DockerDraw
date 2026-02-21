@@ -36,24 +36,23 @@ export function useKeyboardShortcuts() {
                 return;
             }
 
-            // Ctrl+S → Save
             if (mod && e.key === 's') {
                 e.preventDefault();
-                store.setShowSaveModal(true);
+                store.setModalVisibility('showSaveModal', true);
                 return;
             }
 
             // Ctrl+K → Command Palette
             if (mod && e.key === 'k') {
                 e.preventDefault();
-                store.setShowCommandPalette(!store.showCommandPalette);
+                store.setModalVisibility('showCommandPalette', !store.showCommandPalette);
                 return;
             }
 
             // Escape → Deselect / close command palette
             if (e.key === 'Escape') {
                 if (store.showCommandPalette) {
-                    store.setShowCommandPalette(false);
+                    store.setModalVisibility('showCommandPalette', false);
                 } else if (store.selectedServiceId) {
                     store.selectService(null);
                 }

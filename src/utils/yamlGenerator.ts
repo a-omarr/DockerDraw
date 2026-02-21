@@ -14,9 +14,13 @@ export function generateDockerCompose(
 
     services.forEach((service) => {
         const envRecord: Record<string, string> = {};
-        service.environment.forEach((e) => {
-            envRecord[e.key] = e.value;
-        });
+        if (Array.isArray(service.environment)) {
+            service.environment.forEach((e) => {
+                if (e && e.key) {
+                    envRecord[e.key] = e.value || '';
+                }
+            });
+        }
 
         const entry: ComposeConfig['services'][string] = {
             image: service.image,

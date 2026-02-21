@@ -10,6 +10,8 @@ import {
     PanelLeftClose,
     HelpCircle,
     FileCode,
+    Share2,
+    Check,
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { Button } from '@/components/ui/button';
@@ -34,6 +36,8 @@ import { ProjectNameEditor } from './ProjectNameEditor';
 import { UndoRedoButtons } from './UndoRedoButtons';
 import { EnvironmentPresetToggle } from './EnvironmentPresetToggle';
 import { CompactMenu } from './CompactMenu';
+import { encodeServicesToURL } from '../../utils/shareUrl';
+import { useState } from 'react';
 
 export function Header({ onStartTour }: { onStartTour?: () => void }) {
     const {
@@ -41,17 +45,29 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
         setProjectName,
         environmentPreset,
         setEnvironmentPreset,
-        setShowTemplateGallery,
-        setShowImportModal,
-        setShowSaveModal,
-        setShowLoadModal,
-        setShowCommandPalette,
+        setModalVisibility,
         savedProjects,
         showLibrary,
         toggleLibrary,
         showYAMLPanel,
         toggleYAMLPanel,
+        services,
+        isDirty,
     } = useAppStore();
+
+    const [shareCopied, setShareCopied] = useState(false);
+
+    const handleShare = () => {
+        try {
+            const url = encodeServicesToURL(services);
+            navigator.clipboard.writeText(url).then(() => {
+                setShareCopied(true);
+                setTimeout(() => setShareCopied(false), 2000);
+            });
+        } catch (e: any) {
+            alert(e.message || 'Failed to generate share link');
+        }
+    };
 
     const { pastStates, futureStates } = useStore((useAppStore as any).temporal) as any;
     const canUndo = pastStates.length > 0;
@@ -124,7 +140,7 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                                 variant="ghost"
                                 size="sm"
                                 className="h-9 gap-2 text-muted-foreground hover:bg-muted/50"
-                                onClick={() => setShowTemplateGallery(true)}
+                                onClick={() => setModalVisibility('showTemplateGallery', true)}
                             >
                                 <LayoutTemplate size={14} />
                                 <span>Templates</span>
@@ -135,7 +151,7 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                                     variant="ghost"
                                     size="sm"
                                     className="h-9 gap-2 text-muted-foreground hover:bg-muted/50"
-                                    onClick={() => setShowLoadModal(true)}
+                                    onClick={() => setModalVisibility('showLoadModal', true)}
                                 >
                                     <FolderOpen size={14} />
                                     <span>Load</span>
@@ -151,8 +167,8 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="h-8 gap-2 text-muted-foreground pr-2 border-r border-border/50 hover:bg-muted/50 rounded-r-none"
-                                    onClick={() => setShowSaveModal(true)}
+                                    className="h-9 gap-2 text-muted-foreground pr-2 border-r border-border/50 hover:bg-muted/50 rounded-r-none"
+                                    onClick={() => setModalVisibility('showSaveModal', true)}
                                 >
                                     <Save size={14} />
                                     <span>Save</span>
@@ -162,13 +178,13 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="h-8 px-1.5 text-muted-foreground hover:bg-muted/50 rounded-l-none"
+                                            className="h-9 px-1.5 text-muted-foreground hover:bg-muted/50 rounded-l-none"
                                         >
                                             <ChevronDown size={14} />
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="center">
-                                        <DropdownMenuItem onClick={() => setShowImportModal(true)} className="py-2.5">
+                                        <DropdownMenuItem onClick={() => setModalVisibility('showImportModal', true)} className="py-2.5">
                                             <Upload size={14} className="mr-2.5" />
                                             Import YAML
                                         </DropdownMenuItem>
@@ -179,8 +195,20 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                             <Button
                                 variant="ghost"
                                 size="sm"
+                                className="h-9 gap-2 text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
+                                onClick={handleShare}
+                                disabled={!isDirty || services.length === 0}
+                                title={!isDirty ? "Make changes to enable sharing" : "Share this configuration via URL"}
+                            >
+                                {shareCopied ? <Check size={14} className="text-green-500" /> : <Share2 size={14} />}
+                                <span>{shareCopied ? 'Copied!' : 'Share'}</span>
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                size="sm"
                                 className={cn(
-                                    "h-8 gap-2 transition-all px-3 ml-1",
+                                    "h-9 gap-2 transition-all px-3 ml-1",
                                     showYAMLPanel
                                         ? "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary font-medium"
                                         : "text-muted-foreground hover:bg-muted/50"
@@ -200,7 +228,7 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-8 w-8 ml-1 text-muted-foreground hover:bg-muted/50"
+                                                className="h-9 w-9 ml-1 text-muted-foreground hover:bg-muted/50"
                                                 onClick={onStartTour}
                                             >
                                                 <HelpCircle size={16} />
@@ -226,11 +254,11 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                         onRedo={handleRedo}
                         environmentPreset={environmentPreset}
                         onPresetChange={setEnvironmentPreset}
-                        onShowCommandPalette={() => setShowCommandPalette(true)}
-                        onShowTemplateGallery={() => setShowTemplateGallery(true)}
-                        onShowImportModal={() => setShowImportModal(true)}
-                        onShowSaveModal={() => setShowSaveModal(true)}
-                        onShowLoadModal={() => setShowLoadModal(true)}
+                        onShowCommandPalette={() => setModalVisibility('showCommandPalette', true)}
+                        onShowTemplateGallery={() => setModalVisibility('showTemplateGallery', true)}
+                        onShowImportModal={() => setModalVisibility('showImportModal', true)}
+                        onShowSaveModal={() => setModalVisibility('showSaveModal', true)}
+                        onShowLoadModal={() => setModalVisibility('showLoadModal', true)}
                         showYAMLPanel={showYAMLPanel}
                         onToggleYAMLPanel={toggleYAMLPanel}
                         hasSavedProjects={savedProjects.length > 0}

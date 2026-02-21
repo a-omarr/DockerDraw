@@ -36,9 +36,8 @@ interface OnboardingTourProps {
     isActive: boolean;
     onEnd: () => void;
 }
-
 export function OnboardingTour({ isActive, onEnd }: OnboardingTourProps) {
-    const { setShowLibrary, setShowYAMLPanel } = useAppStore();
+    const { setModalVisibility } = useAppStore();
     const [stepIndex, setStepIndex] = useState(0);
     const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
     const [arrowStyle, setArrowStyle] = useState<React.CSSProperties>({});
@@ -55,18 +54,18 @@ export function OnboardingTour({ isActive, onEnd }: OnboardingTourProps) {
         const isMobile = window.innerWidth < 768;
 
         if (step.target === '[data-tour="service-library"]') {
-            setShowLibrary(true);
-            if (isMobile) setShowYAMLPanel(false);
+            setModalVisibility('showLibrary', true);
+            if (isMobile) setModalVisibility('showYAMLPanel', false);
         } else if (step.target === '[data-tour="canvas"]') {
             if (isMobile) {
-                setShowLibrary(false);
-                setShowYAMLPanel(false);
+                setModalVisibility('showLibrary', false);
+                setModalVisibility('showYAMLPanel', false);
             }
         } else if (step.target === '[data-tour="yaml-preview"]') {
-            setShowYAMLPanel(true);
-            if (isMobile) setShowLibrary(false);
+            setModalVisibility('showYAMLPanel', true);
+            if (isMobile) setModalVisibility('showLibrary', false);
         }
-    }, [isActive, step, setShowLibrary, setShowYAMLPanel]);
+    }, [isActive, step, setModalVisibility]);
 
     // Position tooltip near the target element
     useEffect(() => {

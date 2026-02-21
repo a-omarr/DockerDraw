@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 
 export function DownloadSuccessModal() {
-    const { showSuccessModal, setShowSuccessModal, projectName } = useAppStore();
+    const { showSuccessModal, setModalVisibility, projectName } = useAppStore();
 
     const steps = [
         { step: 1, text: 'Move the file to your project directory', code: null },
@@ -19,7 +19,7 @@ export function DownloadSuccessModal() {
     ];
 
     return (
-        <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <Dialog open={showSuccessModal} onOpenChange={(show) => setModalVisibility('showSuccessModal', show)}>
             <DialogContent className="max-w-md p-0 overflow-hidden border-none shadow-2xl">
                 <DialogHeader className="px-6 py-5 border-b bg-emerald-50/50">
                     <div className="flex items-center gap-3 mb-1">
@@ -75,7 +75,7 @@ export function DownloadSuccessModal() {
 
                 <div className="p-6 pt-0">
                     <Button
-                        onClick={() => setShowSuccessModal(false)}
+                        onClick={() => setModalVisibility('showSuccessModal', false)}
                         className="w-full h-11 text-sm font-bold shadow-sm"
                     >
                         Awesome, let's go!

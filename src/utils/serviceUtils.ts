@@ -1,4 +1,23 @@
-import type { Service } from '../types';
+import type { Service, ServiceTemplate } from '../types';
+
+export function createServiceFromTemplate(template: ServiceTemplate): Service {
+    return {
+        id: crypto.randomUUID(),
+        name: template.id.replace(/[^a-z0-9]/g, '_'),
+        templateId: template.id,
+        image: template.defaultImage,
+        ports: template.defaultPorts.map((p) => ({ ...p })),
+        environment: template.defaultEnvironment.map((e) => ({ ...e })),
+        volumes: template.defaultVolumes.map((v) => ({ ...v })),
+        networks: [template.defaultNetwork],
+        dependsOn: [],
+        restart: 'no',
+        buildContext: template.defaultBuildContext,
+        dockerfile: template.defaultDockerfile,
+        buildTarget: template.defaultBuildTarget,
+        buildArgs: template.defaultBuildArgs ? { ...template.defaultBuildArgs } : undefined,
+    };
+}
 
 /**
  * Resolves name-based dependencies to ID-based dependencies.
