@@ -86,6 +86,8 @@ interface AppState {
 
     toggleYAMLPanel: () => void;
     toggleLibrary: () => void;
+    setShowYAMLPanel: (show: boolean) => void;
+    setShowLibrary: (show: boolean) => void;
     setShowTemplateGallery: (show: boolean) => void;
     setShowImportModal: (show: boolean) => void;
     setShowSaveModal: (show: boolean) => void;
@@ -217,6 +219,8 @@ export const useAppStore = create<AppState>()(
 
                 toggleYAMLPanel: () => set((state) => ({ showYAMLPanel: !state.showYAMLPanel })),
                 toggleLibrary: () => set((state) => ({ showLibrary: !state.showLibrary })),
+                setShowYAMLPanel: (show) => set({ showYAMLPanel: show }),
+                setShowLibrary: (show) => set({ showLibrary: show }),
                 setShowTemplateGallery: (show) => set({ showTemplateGallery: show }),
                 setShowImportModal: (show) => set({ showImportModal: show }),
                 setShowSaveModal: (show) => set({ showSaveModal: show }),

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAppStore } from '../store/useAppStore';
 
 interface TourStep {
     target: string;        // CSS selector for the element to highlight
@@ -78,13 +79,35 @@ interface OnboardingTourProps {
 }
 
 export function OnboardingTour({ isActive, onEnd }: OnboardingTourProps) {
+    const { setShowLibrary, setShowYAMLPanel } = useAppStore();
     const [stepIndex, setStepIndex] = useState(0);
     const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
     const [arrowStyle, setArrowStyle] = useState<React.CSSProperties>({});
+    const [spotlightStyle, setSpotlightStyle] = useState<React.CSSProperties>({});
 
     const step = TOUR_STEPS[stepIndex];
     const isLast = stepIndex === TOUR_STEPS.length - 1;
     const isFirst = stepIndex === 0;
+
+    // Open panels associated with the current step
+    useEffect(() => {
+        if (!isActive || !step) return;
+
+        const isMobile = window.innerWidth < 768;
+
+        if (step.target === '[data-tour="service-library"]') {
+            setShowLibrary(true);
+            if (isMobile) setShowYAMLPanel(false);
+        } else if (step.target === '[data-tour="canvas"]') {
+            if (isMobile) {
+                setShowLibrary(false);
+                setShowYAMLPanel(false);
+            }
+        } else if (step.target === '[data-tour="yaml-preview"]') {
+            setShowYAMLPanel(true);
+            if (isMobile) setShowLibrary(false);
+        }
+    }, [isActive, step, setShowLibrary, setShowYAMLPanel]);
 
     // Position tooltip near the target element
     useEffect(() => {
@@ -100,7 +123,8 @@ export function OnboardingTour({ isActive, onEnd }: OnboardingTourProps) {
             }
 
             const rect = el.getBoundingClientRect();
-            const tooltipW = 320;
+            const isMobile = window.innerWidth < 768;
+            const tooltipW = isMobile ? Math.min(320, window.innerWidth - 32) : 320;
             const tooltipH = 180;
             const gap = 16;
 
@@ -109,36 +133,48 @@ export function OnboardingTour({ isActive, onEnd }: OnboardingTourProps) {
             let aTop = 0;
             let aLeft = 0;
             let arrowRotation = '';
+            let showArrow = !isMobile;
 
-            switch (step.position) {
-                case 'right':
-                    top = rect.top + rect.height / 2 - tooltipH / 2;
-                    left = rect.right + gap;
-                    aTop = tooltipH / 2 - 6;
-                    aLeft = -10;
-                    arrowRotation = 'rotate(90deg)';
-                    break;
-                case 'left':
-                    top = rect.top + rect.height / 2 - tooltipH / 2;
-                    left = rect.left - tooltipW - gap;
-                    aTop = tooltipH / 2 - 6;
-                    aLeft = tooltipW - 2;
-                    arrowRotation = 'rotate(-90deg)';
-                    break;
-                case 'bottom':
-                    top = rect.bottom + gap;
-                    left = rect.left + rect.width / 2 - tooltipW / 2;
-                    aTop = -10;
-                    aLeft = tooltipW / 2 - 6;
-                    arrowRotation = 'rotate(180deg)';
-                    break;
-                case 'top':
-                    top = rect.top - tooltipH - gap;
-                    left = rect.left + rect.width / 2 - tooltipW / 2;
-                    aTop = tooltipH - 2;
-                    aLeft = tooltipW / 2 - 6;
-                    arrowRotation = 'rotate(0deg)';
-                    break;
+            if (isMobile) {
+                left = (window.innerWidth - tooltipW) / 2;
+                const targetCenterY = rect.top + rect.height / 2;
+                // If target is in top half, put tooltip near bottom, else near top
+                if (targetCenterY < window.innerHeight / 2) {
+                    top = window.innerHeight - tooltipH - 24;
+                } else {
+                    top = 80;
+                }
+            } else {
+                switch (step.position) {
+                    case 'right':
+                        top = rect.top + rect.height / 2 - tooltipH / 2;
+                        left = rect.right + gap;
+                        aTop = tooltipH / 2 - 6;
+                        aLeft = -10;
+                        arrowRotation = 'rotate(90deg)';
+                        break;
+                    case 'left':
+                        top = rect.top + rect.height / 2 - tooltipH / 2;
+                        left = rect.left - tooltipW - gap;
+                        aTop = tooltipH / 2 - 6;
+                        aLeft = tooltipW - 2;
+                        arrowRotation = 'rotate(-90deg)';
+                        break;
+                    case 'bottom':
+                        top = rect.bottom + gap;
+                        left = rect.left + rect.width / 2 - tooltipW / 2;
+                        aTop = -10;
+                        aLeft = tooltipW / 2 - 6;
+                        arrowRotation = 'rotate(180deg)';
+                        break;
+                    case 'top':
+                        top = rect.top - tooltipH - gap;
+                        left = rect.left + rect.width / 2 - tooltipW / 2;
+                        aTop = tooltipH - 2;
+                        aLeft = tooltipW / 2 - 6;
+                        arrowRotation = 'rotate(0deg)';
+                        break;
+                }
             }
 
             // Clamp within viewport
@@ -151,13 +187,31 @@ export function OnboardingTour({ isActive, onEnd }: OnboardingTourProps) {
                 left,
                 width: tooltipW,
                 zIndex: 10001,
+                transition: 'top 0.3s ease-in-out, left 0.3s ease-in-out'
             });
-            setArrowStyle({
-                position: 'absolute',
-                top: aTop,
-                left: aLeft,
-                transform: arrowRotation,
+            setSpotlightStyle({
+                position: 'fixed',
+                top: Math.max(0, rect.top - 4),
+                left: Math.max(0, rect.left - 4),
+                width: rect.width + 8,
+                height: rect.height + 8,
+                boxShadow: '0 0 0 9999px rgba(0,0,0,0.6)',
+                borderRadius: '8px',
+                pointerEvents: 'none',
+                zIndex: 10000,
+                transition: 'all 0.3s ease-in-out'
             });
+            if (showArrow) {
+                setArrowStyle({
+                    position: 'absolute',
+                    top: aTop,
+                    left: aLeft,
+                    transform: arrowRotation,
+                    display: 'block'
+                });
+            } else {
+                setArrowStyle({ display: 'none' });
+            }
         };
 
         positionTooltip();
@@ -198,21 +252,24 @@ export function OnboardingTour({ isActive, onEnd }: OnboardingTourProps) {
 
     return (
         <>
-            {/* Overlay */}
+            {/* Overlay click catcher (transparent) */}
             <div
-                className="fixed inset-0 bg-black/40 z-[10000] transition-opacity"
+                className="fixed inset-0 z-[9999] cursor-pointer"
                 onClick={onEnd}
             />
+
+            {/* Spotlight cut-out */}
+            <div style={spotlightStyle} />
 
             {/* Tooltip */}
             <div
                 style={tooltipStyle}
-                className="rounded-xl bg-white border border-border shadow-2xl p-5 animate-fade-in-up"
+                className="rounded-xl bg-background border border-border shadow-2xl p-5 animate-fade-in-up"
             >
                 {/* Arrow */}
                 <div style={arrowStyle}>
                     <svg width="12" height="12" viewBox="0 0 12 12">
-                        <polygon points="6,0 12,12 0,12" fill="white" stroke="hsl(var(--border))" strokeWidth="1" />
+                        <polygon points="6,0 12,12 0,12" fill="hsl(var(--background))" stroke="hsl(var(--border))" strokeWidth="1" />
                     </svg>
                 </div>
 
