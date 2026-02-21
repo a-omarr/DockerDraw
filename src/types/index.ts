@@ -1,3 +1,6 @@
+import type { IconType } from 'react-icons';
+import type { ReactNode } from 'react';
+
 export interface Port {
     host: number;
     container: number;
@@ -45,12 +48,16 @@ export interface Service {
     healthCheck?: HealthCheck;
     resources?: ResourceLimits;
     buildContext?: string;
+    dockerfile?: string;
+    buildTarget?: string;
+    buildArgs?: Record<string, string>;
 }
 
 export interface ServiceTemplate {
     id: string;
     name: string;
     emoji: string;
+    Icon?: IconType;
     category: ServiceCategory;
     description: string;
     defaultImage: string;
@@ -62,6 +69,10 @@ export interface ServiceTemplate {
     tags: string[];
     color: string;
     glowColor: string;
+    defaultBuildContext?: string;
+    defaultDockerfile?: string;
+    defaultBuildTarget?: string;
+    defaultBuildArgs?: Record<string, string>;
 }
 
 export type ServiceCategory =
@@ -147,4 +158,19 @@ export interface ComposeNetwork {
 export interface ComposeVolume {
     driver?: string;
     external?: boolean;
+}
+
+export interface CommandItem {
+    id: string;
+    label: string;
+    icon: ReactNode;
+    shortcut?: string;
+    category: string;
+    action: () => void;
+}
+export interface TourStep {
+    target: string;        // CSS selector for the element to highlight
+    title: string;
+    description: string;
+    position: 'top' | 'bottom' | 'left' | 'right';
 }

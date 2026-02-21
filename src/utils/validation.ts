@@ -50,6 +50,17 @@ export function validateServices(services: Service[]): ValidationWarning[] {
             });
         }
 
+        // Build service with empty build context
+        if (service.buildContext !== undefined && service.buildContext.trim() === '') {
+            warnings.push({
+                id: `empty-build-context-${service.id}`,
+                type: 'error',
+                serviceId: service.id,
+                message: `Service "${service.name}": Build context path is empty. Set a path like ./frontend.`,
+                action: 'Set a build context directory',
+            });
+        }
+
         // Service with no network
         if (service.networks.length === 0) {
             warnings.push({
@@ -69,6 +80,45 @@ export function validateServices(services: Service[]): ValidationWarning[] {
                 serviceId: service.id,
                 message: `Service "${service.name}": Database has no volume. All data will be lost when the container stops.`,
                 action: 'Add a volume to persist data',
+            });
+        }
+
+        // Circular Dependency Check
+        const checkCircular = (currentId: string, path: string[] = []): string[] | null => {
+            if (path.includes(currentId)) {
+                return [...path, currentId];
+            }
+            const currentService = services.find(s => s.id === currentId);
+            if (!currentService) return null;
+
+            for (const depId of currentService.dependsOn) {
+                const cycle = checkCircular(depId, [...path, currentId]);
+                if (cycle) return cycle;
+            }
+            return null;
+        };
+
+        const cycle = checkCircular(service.id);
+        if (cycle) {
+            const cycleNames = cycle.map(id => services.find(s => s.id === id)?.name || id).join(' -> ');
+            warnings.push({
+                id: `circular-dep-${service.id}`,
+                type: 'error',
+                serviceId: service.id,
+                message: `Circular dependency detected: ${cycleNames}`,
+                action: 'Remove one of the dependencies to break the loop',
+            });
+        }
+
+        // Strict Image Name Validation
+        const IMAGE_REGEX = /^[a-z0-9/._:-]+$/;
+        if (service.image && !IMAGE_REGEX.test(service.image)) {
+            warnings.push({
+                id: `invalid-image-${service.id}`,
+                type: 'error',
+                serviceId: service.id,
+                message: `Service "${service.name}": Invalid characters in "Docker Image" field. Only lowercase letters, numbers, and ./_:- are allowed.`,
+                action: 'Remove special characters from the image name',
             });
         }
     });

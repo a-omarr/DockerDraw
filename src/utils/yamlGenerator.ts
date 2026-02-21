@@ -5,7 +5,6 @@ export function generateDockerCompose(
     services: Service[],
     networkName = 'app_network',
     preset: EnvironmentPreset = 'development',
-    _projectName = 'my-project'
 ): string {
     if (services.length === 0) {
         return `# Add services to generate your docker-compose.yml\nversion: '3.8'\n\nservices: {}\n`;
@@ -15,16 +14,37 @@ export function generateDockerCompose(
 
     services.forEach((service) => {
         const envRecord: Record<string, string> = {};
-        service.environment.forEach((e) => {
-            envRecord[e.key] = e.value;
-        });
+        if (Array.isArray(service.environment)) {
+            service.environment.forEach((e) => {
+                if (e && e.key) {
+                    envRecord[e.key] = e.value || '';
+                }
+            });
+        }
 
         const entry: ComposeConfig['services'][string] = {
             image: service.image,
         };
 
         if (service.buildContext) {
-            entry.build = service.buildContext;
+            const hasExtras = service.dockerfile || service.buildTarget || (service.buildArgs && Object.keys(service.buildArgs).length > 0);
+            if (hasExtras) {
+                const buildObj: { context: string; dockerfile?: string; target?: string; args?: Record<string, string> } = {
+                    context: service.buildContext,
+                };
+                if (service.dockerfile && service.dockerfile !== 'Dockerfile') {
+                    buildObj.dockerfile = service.dockerfile;
+                }
+                if (service.buildTarget) {
+                    buildObj.target = service.buildTarget;
+                }
+                if (service.buildArgs && Object.keys(service.buildArgs).length > 0) {
+                    buildObj.args = service.buildArgs;
+                }
+                entry.build = buildObj;
+            } else {
+                entry.build = service.buildContext;
+            }
             delete entry.image;
         }
 
@@ -59,7 +79,16 @@ export function generateDockerCompose(
         }
 
         if (service.dependsOn.length > 0) {
-            entry.depends_on = service.dependsOn;
+            entry.depends_on = service.dependsOn
+                .map((id) => {
+                    const depService = services.find((s) => s.id === id);
+                    if (depService) return depService.name;
+                    // Fallback for names if they are already in the array (backward compatibility)
+                    const existsByName = services.find((s) => s.name === id);
+                    if (existsByName) return id;
+                    return null;
+                })
+                .filter(Boolean) as string[];
         }
 
         if (service.command) {
