@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Search, Plus, Check } from 'lucide-react';
-import { useAppStore } from '../store/useAppStore';
-import { serviceTemplates } from '../data/serviceTemplates';
-import type { ServiceCategory, ServiceTemplate } from '../types';
+import { useAppStore } from '../../store/useAppStore';
+import { serviceTemplates } from '../../data/serviceTemplates';
+import type { ServiceCategory, ServiceTemplate } from '../../types';
 import {
     Dialog,
     DialogContent,

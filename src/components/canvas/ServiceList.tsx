@@ -12,7 +12,7 @@ import {
 import { Trash2, Plus } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { ServiceNode, ServiceNodeOverlay } from '../ServiceNode';
-import { ConfirmDialog } from '../ConfirmDialog';
+import { ConfirmDialog } from '../modals';
 import { Button } from '../ui/button';
 import { DependencyFlow } from './DependencyFlow';
 

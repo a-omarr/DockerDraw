@@ -4,18 +4,21 @@ import { ServiceLibrary } from './components/ServiceLibrary';
 import { Canvas } from './components/canvas/Canvas';
 import { ConfigPanel } from './components/config-panel';
 import { YAMLPreview } from './components/YAMLPreview';
-import { TemplateGallery } from './components/TemplateGallery';
-import { ImportModal } from './components/ImportModal';
-import { SaveModal, LoadModal } from './components/SaveLoadModals';
-import { DownloadSuccessModal } from './components/DownloadSuccessModal';
+import {
+  OnboardingTour,
+  ImportModal,
+  SaveModal,
+  LoadModal,
+  DownloadSuccessModal,
+  AddServiceModal,
+  TemplateGallery,
+} from './components/modals';
 import { CommandPalette } from './components/CommandPalette';
 import { StatusBar } from './components/StatusBar';
 import { LoadingScreen } from './components/LoadingScreen';
-import { AddServiceModal } from './components/AddServiceModal';
 import { useAppStore } from './store/useAppStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useIsMobile, useIsTablet } from './hooks/useMediaQuery';
-import { OnboardingTour } from './components/OnboardingTour';
 import { useOnboardingTour } from './hooks/useOnboardingTour';
 
 function useHydration() {

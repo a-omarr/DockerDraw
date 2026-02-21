@@ -1,5 +1,5 @@
 import { Terminal, ArrowRight, FileCheck, ExternalLink } from 'lucide-react';
-import { useAppStore } from '../store/useAppStore';
+import { useAppStore } from '../../store/useAppStore';
 import {
     Dialog,
     DialogContent,

@@ -1,9 +1,9 @@
-import type { TourStep } from '../types';
+import type { TourStep } from '../../types';
 
 import { useState, useEffect } from 'react';
 import { X, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAppStore } from '../store/useAppStore';
+import { useAppStore } from '../../store/useAppStore';
 
 const TOUR_STEPS: TourStep[] = [
     {

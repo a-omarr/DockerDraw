@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Upload, FileText, AlertCircle, Terminal } from 'lucide-react';
-import { useAppStore } from '../store/useAppStore';
-import { parseYAMLToServices } from '../utils/yamlImport';
+import { useAppStore } from '../../store/useAppStore';
+import { parseYAMLToServices } from '../../utils/yamlImport';
 import {
     Dialog,
     DialogContent,

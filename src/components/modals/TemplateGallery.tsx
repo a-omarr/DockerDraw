@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Search, Star, Zap } from 'lucide-react';
-import { useAppStore } from '../store/useAppStore';
-import { builtinTemplates } from '../data/builtinTemplates';
-import { serviceTemplates } from '../data/serviceTemplates';
+import { useAppStore } from '../../store/useAppStore';
+import { builtinTemplates } from '../../data/builtinTemplates';
+import { serviceTemplates } from '../../data/serviceTemplates';
 import {
     Dialog,
     DialogContent,
