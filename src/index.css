@@ -135,6 +135,16 @@ body,
   color: var(--text-primary);
 }
 
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"]:disabled {
+  cursor: default;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
