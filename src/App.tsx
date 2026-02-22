@@ -22,6 +22,7 @@ import { useIsMobile, useIsTablet } from './hooks/useMediaQuery';
 import { useOnboardingTour } from './hooks/useOnboardingTour';
 import { decodeServicesFromURL, clearURLState } from './utils/shareUrl';
 import { sanitizeName } from './utils/yamlImport';
+import { Analytics } from '@vercel/analytics/react';
 
 function useHydration() {
   const [hydrated, setHydrated] = useState(false);
@@ -203,6 +204,7 @@ export default function App() {
       {showSuccessModal && <DownloadSuccessModal />}
       <CommandPalette />
       <OnboardingTour isActive={tourActive} onEnd={endTour} />
+      <Analytics />
     </div>
   );
 }
