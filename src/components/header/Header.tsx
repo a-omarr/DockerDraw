@@ -8,7 +8,6 @@ import {
     ChevronDown,
     PanelLeftOpen,
     PanelLeftClose,
-    HelpCircle,
     FileCode,
     Share2,
     Check,
@@ -24,13 +23,6 @@ import {
 import { useStore } from 'zustand';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { cn } from '@/lib/utils';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
-
 import { useAppActions } from '../../hooks/useAppActions';
 import { ProjectNameEditor } from './ProjectNameEditor';
 import { UndoRedoButtons } from './UndoRedoButtons';
@@ -39,7 +31,7 @@ import { CompactMenu } from './CompactMenu';
 import { encodeServicesToURL } from '../../utils/shareUrl';
 import { useState } from 'react';
 
-export function Header({ onStartTour }: { onStartTour?: () => void }) {
+export function Header() {
     const {
         projectName,
         setProjectName,
@@ -220,26 +212,6 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                                 <span>YAML Code</span>
                             </Button>
 
-                            {/* Help / Tour */}
-                            {onStartTour && (
-                                <TooltipProvider delayDuration={300}>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-9 w-9 ml-1 text-muted-foreground hover:bg-muted/50"
-                                                onClick={onStartTour}
-                                            >
-                                                <HelpCircle size={16} />
-                                            </Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent className="text-xs">
-                                            <p>Take a tour</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                            )}
                         </div>
                     </>
                 )}
@@ -262,7 +234,6 @@ export function Header({ onStartTour }: { onStartTour?: () => void }) {
                         showYAMLPanel={showYAMLPanel}
                         onToggleYAMLPanel={toggleYAMLPanel}
                         hasSavedProjects={savedProjects.length > 0}
-                        onStartTour={onStartTour}
                         onShare={handleShare}
                         shareCopied={shareCopied}
                         isShareDisabled={!isDirty || services.length === 0}

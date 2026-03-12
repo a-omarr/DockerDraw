@@ -24,7 +24,7 @@ DockerDraw is a powerful, browser-based visual editor designed to simplify the c
 * **Visual Service Editor**: Drag and drop service cards to build your stack visually.
 * **Service Library**: Access over 15 pre-configured service templates (PostgreSQL, Redis, Nginx, RabbitMQ, etc.).
 * **Template Gallery**: Jumpstart your project using battle-tested blueprints (e.g., MERN, WordPress).
-* **Responsive Design**: fully functional on desktop, tablet, and mobile environments.
+* **Responsive Design**: Premium mobile experience with touch-optimized controls and full-screen previews.
 
 ### ⚙️ Powerful Configuration
 * **Live YAML Sync**: Watch your `docker-compose.yml` update in real time with a built-in Monaco Code Editor.
@@ -37,7 +37,11 @@ DockerDraw is a powerful, browser-based visual editor designed to simplify the c
 ### ⌨️ Developer Experience
 * **Undo / Redo Engine**: Complete history tracking allowing you to safely revert mistakes (`Ctrl+Z` / `Ctrl+Shift+Z`).
 * **Command Palette**: Power-user friendly command palette accessible via `Ctrl+K`.
-* **Zero Backend**: Runs entirely locally in your browser ensuring complete privacy and offline readiness.
+
+### 🤖 AI-Powered Assistant
+* **Intelligent Scaffolding**: Describe your stack in natural language and let the AI generate it for you.
+* **Smart Debugging**: Use the built-in AI chat to troubleshoot configurations or ask for best practices.
+* **Privacy-First Proxy**: Secure backend integration ensures your API keys are never exposed to the frontend.
 
 ## 🛠️ Technology Stack
 
@@ -47,9 +51,11 @@ Built with modern web technologies focusing on performance and type-safety:
 |-------|-----------|
 | **Core** | React 19, TypeScript |
 | **Build System** | Vite 7 |
+| **AI Engine** | Groq (Llama 3.3 70B), Vercel AI SDK |
 | **Styling** | Tailwind CSS 4, Radix UI |
-| **State Management** | Zustand (with Zundo for component history) |
-| **Editors & Parsing** | Monaco Editor, js-yaml, Zod (Validation), dnd-kit |
+| **Backend** | Vercel Serverless Functions (API Proxy) |
+| **State Management** | Zustand (with Zundo for history) |
+| **Editors** | Monaco Editor, js-yaml |
 
 ## 🚀 Getting Started
 
@@ -59,12 +65,24 @@ Built with modern web technologies focusing on performance and type-safety:
 
 ### Local Development
 
-```bash
-git clone https://github.com/a-omarr/DockerDraw
-cd DockerDraw
-npm install
-npm run dev
-```
+1.  **Clone & Install**:
+    ```bash
+    git clone https://github.com/a-omarr/DockerDraw
+    cd DockerDraw
+    npm install
+    ```
+
+2.  **Environment Setup**:
+    Create a `.env` file in the root directory:
+    ```env
+    GROQ_API_KEY=your_groq_api_key_here
+    ```
+    *(Get your free key at [console.groq.com](https://console.groq.com))*
+
+3.  **Start Development**:
+    ```bash
+    npm run dev
+    ```
 
 Open `http://localhost:5173` in your browser.
 

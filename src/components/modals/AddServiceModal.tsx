@@ -69,15 +69,15 @@ export function AddServiceModal({ open, onOpenChange }: AddServiceModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="max-w-2xl h-[75vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
-                <DialogHeader className="px-6 py-4 border-b bg-muted/20">
+            <DialogContent className="max-w-2xl h-[85vh] sm:h-[75vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl mx-auto">
+                <DialogHeader className="px-4 sm:px-6 py-4 border-b bg-muted/20">
                     <DialogTitle className="text-lg font-bold tracking-tight">Add a Service</DialogTitle>
                     <DialogDescription className="text-xs">
                         Pick a service to add to your Docker Compose stack.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="px-6 pt-4">
+                <div className="px-4 sm:px-6 pt-4">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
                         <Input
@@ -90,7 +90,7 @@ export function AddServiceModal({ open, onOpenChange }: AddServiceModalProps) {
                     </div>
                 </div>
 
-                <ScrollArea className="flex-1 px-6 pb-6">
+                <ScrollArea className="flex-1 px-4 sm:px-6 pb-6">
                     <div className="space-y-6 pt-4 pr-2">
                         {Object.entries(grouped).map(([category, templates]) => (
                             <div key={category}>
@@ -101,7 +101,7 @@ export function AddServiceModal({ open, onOpenChange }: AddServiceModalProps) {
                                     </h3>
                                     <div className="flex-1 h-[1px] bg-border/50" />
                                 </div>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2">
                                     {templates.map((template) => {
                                         const count = getServiceCount(template.id);
                                         const wasJustAdded = justAdded === template.id;

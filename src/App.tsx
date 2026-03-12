@@ -5,7 +5,6 @@ import { Canvas } from './components/canvas/Canvas';
 import { ConfigPanel } from './components/config-panel';
 import { YAMLPreview } from './components/YAMLPreview';
 import {
-  OnboardingTour,
   ImportModal,
   SaveModal,
   LoadModal,
@@ -16,10 +15,10 @@ import {
 import { CommandPalette } from './components/CommandPalette';
 import { StatusBar } from './components/StatusBar';
 import { LoadingScreen } from './components/LoadingScreen';
+import { AIAssistant } from './components/chat/AIAssistant';
 import { useAppStore } from './store/useAppStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useIsMobile, useIsTablet } from './hooks/useMediaQuery';
-import { useOnboardingTour } from './hooks/useOnboardingTour';
 import { decodeServicesFromURL, clearURLState } from './utils/shareUrl';
 import { sanitizeName } from './utils/yamlImport';
 import { Analytics } from '@vercel/analytics/react';
@@ -75,8 +74,7 @@ export default function App() {
   // Global keyboard shortcuts
   useKeyboardShortcuts();
 
-  // Onboarding tour
-  const { isActive: tourActive, startTour, endTour } = useOnboardingTour();
+  // Onboarding tour state removed as per user request
 
   // Initial YAML generation on mount + Handle shared URL
   useEffect(() => {
@@ -144,7 +142,7 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">
       {/* Top nav */}
-      <Header onStartTour={startTour} />
+      <Header />
 
       {/* Main layout */}
       <div className="flex flex-1 overflow-hidden relative">
@@ -170,7 +168,7 @@ export default function App() {
           {showYAMLPanel && (
             <div
               data-tour="yaml-preview"
-              className={isMobile ? "absolute inset-0 z-30" : ""}
+              className={isMobile ? "absolute inset-0 z-[35]" : ""}
             >
               <YAMLPreview className={isMobile ? "h-full border-t-0" : ""} />
             </div>
@@ -203,7 +201,7 @@ export default function App() {
       <AddServiceModal open={showAddServiceModal} onOpenChange={(show) => setModalVisibility('showAddServiceModal', show)} />
       {showSuccessModal && <DownloadSuccessModal />}
       <CommandPalette />
-      <OnboardingTour isActive={tourActive} onEnd={endTour} />
+      <AIAssistant />
       <Analytics />
     </div>
   );

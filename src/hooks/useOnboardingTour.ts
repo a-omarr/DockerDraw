@@ -1,14 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 const STORAGE_KEY = 'dockerdraw-onboarding-complete';
-
-function hasCompletedTour(): boolean {
-    try {
-        return localStorage.getItem(STORAGE_KEY) === 'true';
-    } catch {
-        return false;
-    }
-}
 
 function markTourComplete() {
     try {
@@ -19,13 +11,7 @@ function markTourComplete() {
 export function useOnboardingTour() {
     const [isActive, setIsActive] = useState(false);
 
-    useEffect(() => {
-        // Auto-start on first visit (slight delay for the page to render)
-        if (!hasCompletedTour()) {
-            const timer = setTimeout(() => setIsActive(true), 800);
-            return () => clearTimeout(timer);
-        }
-    }, []);
+    // Auto-start disabled as per user request
 
     const startTour = useCallback(() => setIsActive(true), []);
     const endTour = useCallback(() => {

@@ -8,6 +8,7 @@ import type {
     ValidationWarning,
     PortConflict,
 } from '../types';
+import type { ChatMessage } from '../types/chat';
 
 import { serviceTemplates } from '../data/serviceTemplates';
 import { resolveDependencyNamesToIds, createServiceFromTemplate } from '../utils/serviceUtils';
@@ -33,6 +34,12 @@ interface AppState {
     showSuccessModal: boolean;
     showCommandPalette: boolean;
     showAddServiceModal: boolean;
+    showChatPanel: boolean;
+
+    // AI Chat
+    chatMessages: ChatMessage[];
+    isChatLoading: boolean;
+    groqApiKey: string | null;
 
     // Derived
     yamlOutput: string;
@@ -62,7 +69,14 @@ interface AppState {
 
     toggleYAMLPanel: () => void;
     toggleLibrary: () => void;
-    setModalVisibility: (modal: 'showYAMLPanel' | 'showLibrary' | 'showTemplateGallery' | 'showImportModal' | 'showSaveModal' | 'showLoadModal' | 'showSuccessModal' | 'showCommandPalette' | 'showAddServiceModal', show: boolean) => void;
+    toggleChatPanel: () => void;
+    setModalVisibility: (modal: 'showYAMLPanel' | 'showLibrary' | 'showTemplateGallery' | 'showImportModal' | 'showSaveModal' | 'showLoadModal' | 'showSuccessModal' | 'showCommandPalette' | 'showAddServiceModal' | 'showChatPanel', show: boolean) => void;
+
+    // Chat Actions
+    addChatMessage: (msg: ChatMessage) => void;
+    setChatLoading: (loading: boolean) => void;
+    setGroqApiKey: (key: string | null) => void;
+    clearChat: () => void;
 
     saveProject: (name: string) => void;
     loadProject: (id: string) => void;
@@ -94,6 +108,11 @@ export const useAppStore = create<AppState>()(
                 showSuccessModal: false,
                 showCommandPalette: false,
                 showAddServiceModal: false,
+                showChatPanel: false,
+
+                chatMessages: [],
+                isChatLoading: false,
+                groqApiKey: null,
 
                 yamlOutput: '',
                 warnings: [],
@@ -141,6 +160,7 @@ export const useAppStore = create<AppState>()(
                         services: newServices,
                         selectedServiceId: newService.id,
                         showYAMLPanel: true,
+                        showLibrary: false, // Auto-close library on mobile
                         isDirty: true,
                         ...computeDerived(newServices, s.networkName, s.environmentPreset)
                     });
@@ -199,7 +219,13 @@ export const useAppStore = create<AppState>()(
 
                 toggleYAMLPanel: () => set((state) => ({ showYAMLPanel: !state.showYAMLPanel })),
                 toggleLibrary: () => set((state) => ({ showLibrary: !state.showLibrary })),
+                toggleChatPanel: () => set((state) => ({ showChatPanel: !state.showChatPanel })),
                 setModalVisibility: (modal, show) => set({ [modal]: show }),
+
+                addChatMessage: (msg) => set((state) => ({ chatMessages: [...state.chatMessages, msg] })),
+                setChatLoading: (loading) => set({ isChatLoading: loading }),
+                setGroqApiKey: (key) => set({ groqApiKey: key }),
+                clearChat: () => set({ chatMessages: [] }),
 
                 saveProject: (name) => {
                     const { services, networkName, environmentPreset, savedProjects } = get();
@@ -265,6 +291,7 @@ export const useAppStore = create<AppState>()(
                         services: resolvedServices,
                         selectedServiceId: resolvedServices.length > 0 ? resolvedServices[0].id : null,
                         showYAMLPanel: true,
+                        showLibrary: false, // Auto-close library on mobile
                         isDirty: true,
                         ...computeDerived(resolvedServices, s.networkName, s.environmentPreset)
                     });
@@ -303,6 +330,8 @@ export const useAppStore = create<AppState>()(
                 },
                 partialize: (state) => ({
                     savedProjects: state.savedProjects,
+                    groqApiKey: state.groqApiKey,
+                    chatMessages: state.chatMessages,
                 }),
             }
         ),
