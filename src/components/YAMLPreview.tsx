@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, AlertTriangle, Lightbulb, FileCode } from 'lucide-react';
+import { Copy, Check, AlertTriangle, Lightbulb, FileCode, X } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import { useAppStore } from '../store/useAppStore';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { WarningsPanel } from './WarningsPanel';
 
 export function YAMLPreview({ className }: { className?: string }) {
-    const { yamlOutput, warnings } = useAppStore();
+    const { yamlOutput, warnings, toggleYAMLPanel } = useAppStore();
     const [copied, setCopied] = useState(false);
     const [showWarnings, setShowWarnings] = useState(true);
 
@@ -75,6 +75,15 @@ export function YAMLPreview({ className }: { className?: string }) {
                     >
                         {copied ? <Check size={12} /> : <Copy size={12} />}
                         <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy'}</span>
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 sm:hidden text-muted-foreground"
+                        onClick={toggleYAMLPanel}
+                    >
+                        <X size={16} />
                     </Button>
                 </div>
             </div>

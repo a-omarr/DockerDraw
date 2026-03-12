@@ -4,7 +4,6 @@ import {
     LayoutTemplate,
     FolderOpen,
     Search,
-    HelpCircle,
     FileCode,
     Menu,
     Share2,
@@ -39,7 +38,6 @@ interface CompactMenuProps {
     showYAMLPanel: boolean;
     onToggleYAMLPanel: () => void;
     hasSavedProjects: boolean;
-    onStartTour?: () => void;
     onShare: () => void;
     shareCopied: boolean;
     isShareDisabled: boolean;
@@ -61,7 +59,6 @@ export function CompactMenu({
     showYAMLPanel,
     onToggleYAMLPanel,
     hasSavedProjects,
-    onStartTour,
     onShare,
     shareCopied,
     isShareDisabled,
@@ -136,15 +133,6 @@ export function CompactMenu({
                         <FolderOpen size={14} className="mr-2.5" />
                         Load Project
                     </DropdownMenuItem>
-                )}
-                {onStartTour && (
-                    <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={onStartTour} className="py-2.5">
-                            <HelpCircle size={14} className="mr-2.5" />
-                            Take a Tour
-                        </DropdownMenuItem>
-                    </>
                 )}
             </DropdownMenuContent>
         </DropdownMenu>
