@@ -137,7 +137,13 @@ export const useAppStore = create<AppState>()(
                         newService.name = `${newService.name}_${count}`;
                     }
                     const newServices = [...s.services, newService];
-                    set({ services: newServices, isDirty: true, ...computeDerived(newServices, s.networkName, s.environmentPreset) });
+                    set({
+                        services: newServices,
+                        selectedServiceId: newService.id,
+                        showYAMLPanel: true,
+                        isDirty: true,
+                        ...computeDerived(newServices, s.networkName, s.environmentPreset)
+                    });
                 },
 
                 removeService: (id) => {
@@ -241,14 +247,27 @@ export const useAppStore = create<AppState>()(
 
                 importFromYAML: (services, network) => {
                     const s = get();
-                    set({ services, networkName: network, selectedServiceId: null, isDirty: false, ...computeDerived(services, network, s.environmentPreset) });
+                    set({
+                        services,
+                        networkName: network,
+                        selectedServiceId: services.length > 0 ? services[0].id : null,
+                        showYAMLPanel: true,
+                        isDirty: false,
+                        ...computeDerived(services, network, s.environmentPreset)
+                    });
                 },
 
                 loadTemplate: (services) => {
                     const s = get();
                     const renamedServices = services.map((svc) => ({ ...svc, id: crypto.randomUUID() }));
                     const resolvedServices = resolveDependencyNamesToIds(renamedServices as Service[]);
-                    set({ services: resolvedServices, selectedServiceId: null, isDirty: true, ...computeDerived(resolvedServices, s.networkName, s.environmentPreset) });
+                    set({
+                        services: resolvedServices,
+                        selectedServiceId: resolvedServices.length > 0 ? resolvedServices[0].id : null,
+                        showYAMLPanel: true,
+                        isDirty: true,
+                        ...computeDerived(resolvedServices, s.networkName, s.environmentPreset)
+                    });
                 },
 
                 refreshDerived: () => {
