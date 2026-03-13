@@ -4,6 +4,8 @@ import {
     Layers,
     FileCode,
     Library,
+    ShieldCheck,
+    Loader2,
 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { cn } from '@/lib/utils';
@@ -19,6 +21,8 @@ export function StatusBar() {
         totalPorts,
         totalVolumes,
         totalEnvVars,
+        performAudit,
+        isAuditing,
     } = useAppStore();
 
     return (
@@ -81,6 +85,22 @@ export function StatusBar() {
                 >
                     <FileCode size={14} className="sm:w-2.5 sm:h-2.5" />
                     <span className="hidden sm:inline">YAML</span>
+                </button>
+                <div className="h-4 w-[1px] bg-border block sm:hidden mx-1" />
+                <button
+                    onClick={performAudit}
+                    disabled={isAuditing || services.length === 0}
+                    className={cn(
+                        "flex items-center justify-center gap-1.5 transition-colors hover:text-foreground cursor-pointer min-h-[36px] min-w-[36px] sm:min-h-0 sm:min-w-0 rounded-md active:bg-muted/50 p-1 sm:p-0 disabled:opacity-50",
+                        isAuditing ? "text-primary" : "text-muted-foreground/60"
+                    )}
+                >
+                    {isAuditing ? (
+                        <Loader2 size={14} className="sm:w-2.5 sm:h-2.5 animate-spin" />
+                    ) : (
+                        <ShieldCheck size={14} className="sm:w-2.5 sm:h-2.5" />
+                    )}
+                    <span className="hidden sm:inline">Smart Audit</span>
                 </button>
             </div>
         </footer>

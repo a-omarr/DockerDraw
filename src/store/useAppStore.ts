@@ -7,6 +7,7 @@ import type {
     SavedProject,
     ValidationWarning,
     PortConflict,
+    AuditFinding,
 } from '../types';
 import type { ChatMessage } from '../types/chat';
 
@@ -35,6 +36,11 @@ interface AppState {
     showCommandPalette: boolean;
     showAddServiceModal: boolean;
     showChatPanel: boolean;
+    showAuditModal: boolean;
+
+    // AI Audit
+    isAuditing: boolean;
+    auditFindings: AuditFinding[];
 
     // AI Chat
     chatMessages: ChatMessage[];
@@ -70,7 +76,12 @@ interface AppState {
     toggleYAMLPanel: () => void;
     toggleLibrary: () => void;
     toggleChatPanel: () => void;
-    setModalVisibility: (modal: 'showYAMLPanel' | 'showLibrary' | 'showTemplateGallery' | 'showImportModal' | 'showSaveModal' | 'showLoadModal' | 'showSuccessModal' | 'showCommandPalette' | 'showAddServiceModal' | 'showChatPanel', show: boolean) => void;
+    setModalVisibility: (modal: 'showYAMLPanel' | 'showLibrary' | 'showTemplateGallery' | 'showImportModal' | 'showSaveModal' | 'showLoadModal' | 'showSuccessModal' | 'showCommandPalette' | 'showAddServiceModal' | 'showChatPanel' | 'showAuditModal', show: boolean) => void;
+
+    // Audit Actions
+    performAudit: () => Promise<void>;
+    applyAuditFix: (findingId: string) => void;
+    dismissAuditFinding: (findingId: string) => void;
 
     // Chat Actions
     addChatMessage: (msg: ChatMessage) => void;
@@ -109,6 +120,10 @@ export const useAppStore = create<AppState>()(
                 showCommandPalette: false,
                 showAddServiceModal: false,
                 showChatPanel: false,
+                showAuditModal: false,
+
+                isAuditing: false,
+                auditFindings: [],
 
                 chatMessages: [],
                 isChatLoading: false,
@@ -303,6 +318,74 @@ export const useAppStore = create<AppState>()(
                 },
 
                 setIsDirty: (isDirty) => set({ isDirty }),
+
+                performAudit: async () => {
+                    const { services, yamlOutput } = get();
+                    if (services.length === 0) return;
+
+                    set({ isAuditing: true, showAuditModal: true, auditFindings: [] });
+
+                    try {
+                        const response = await fetch('/api/chat', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                messages: [{ 
+                                    role: 'user', 
+                                    content: 'Please audit my current docker-compose configuration for security, performance, and best practices. Return your findings ONLY as a JSON array of objects. Each object must have: id (unique string), title, message, severity (critical|warning|info), category (Security|Best Practice|Performance), serviceId (optional), fixAvailable (boolean), fixDescription (string, optional), and fixData (optional Partial<Service> object with fields to update).' 
+                                }],
+                                yamlContext: yamlOutput
+                            }),
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.error || 'Audit failed');
+
+                        // Clean JSON from markdown if needed
+                        let content = data.content.trim();
+                        if (content.startsWith('```json')) {
+                            content = content.replace(/^```json/, '').replace(/```$/, '').trim();
+                        } else if (content.startsWith('```')) {
+                            content = content.replace(/^```/, '').replace(/```$/, '').trim();
+                        }
+
+                        const results = JSON.parse(content);
+                        set({ auditFindings: Array.isArray(results) ? results : [] });
+                    } catch (error) {
+                        console.error('Audit Exception:', error);
+                        set({ 
+                          auditFindings: [{
+                            id: 'error',
+                            title: 'Audit Failed',
+                            message: error instanceof Error ? error.message : 'An unexpected error occurred during audit.',
+                            severity: 'critical',
+                            category: 'Security',
+                            fixAvailable: false
+                          }]
+                        });
+                    } finally {
+                        set({ isAuditing: false });
+                    }
+                },
+
+                applyAuditFix: (findingId) => {
+                    const s = get();
+                    const finding = s.auditFindings.find(f => f.id === findingId);
+                    if (!finding || !finding.fixAvailable || !finding.fixData) return;
+
+                    if (finding.serviceId) {
+                        s.updateService(finding.serviceId, finding.fixData);
+                    } else {
+                        // Global fix if applicable? (e.g. network name)
+                        // For now we mostly support service-level fixes.
+                    }
+
+                    set({ auditFindings: s.auditFindings.filter(f => f.id !== findingId) });
+                },
+
+                dismissAuditFinding: (findingId) => {
+                    set(state => ({ auditFindings: state.auditFindings.filter(f => f.id !== findingId) }));
+                },
             }),
             {
                 name: 'dockerdraw-store',

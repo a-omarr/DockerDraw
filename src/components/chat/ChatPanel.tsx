@@ -9,9 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 export function ChatPanel() {
-    const { 
-        chatMessages, 
-        isChatLoading, 
+    const {
+        chatMessages,
+        isChatLoading,
         yamlOutput,
         addChatMessage,
         setChatLoading,
@@ -51,12 +51,49 @@ export function ChatPanel() {
                 yamlOutput
             );
 
+            let visibleContent = assistantResponse;
+
+            // Process AI actions if present
+            try {
+                // Find and extract JSON blocks
+                const jsonBlocks = [...assistantResponse.matchAll(/```json\s*([\s\S]*?)\s*```/g)];
+
+                for (const match of jsonBlocks) {
+                    const jsonContent = match[1];
+                    try {
+                        const data = JSON.parse(jsonContent);
+                        if (data.type === 'actions' && Array.isArray(data.actions)) {
+                            // This is an internal action block, remove it from visible content
+                            visibleContent = visibleContent.replace(match[0], '').trim();
+
+                            for (const action of data.actions) {
+                                if (action.type === 'addService' && action.templateId) {
+                                    useAppStore.getState().addService(action.templateId);
+                                } else if (action.type === 'updateService' && action.serviceName) {
+                                    const service = useAppStore.getState().services.find(
+                                        s => s.name.toLowerCase() === action.serviceName.toLowerCase()
+                                    );
+                                    if (service) {
+                                        useAppStore.getState().updateService(service.id, action.updates);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        // Not a valid actions block or just regular JSON, keep it
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to parse AI actions:', e);
+            }
+
             addChatMessage({
                 id: crypto.randomUUID(),
                 role: 'assistant' as const,
-                content: assistantResponse,
+                content: visibleContent,
                 timestamp: Date.now()
             });
+
         } catch (error: any) {
             console.error('Groq AI Error:', error);
             addChatMessage({
@@ -87,17 +124,17 @@ export function ChatPanel() {
                     </div>
                 </div>
                 <div className="flex items-center gap-1">
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-destructive"
                         onClick={clearChat}
                         title="Clear Conversation"
                     >
                         <Trash2 size={16} />
                     </Button>
-                    <Button 
-                        variant="ghost" 
+                    <Button
+                        variant="ghost"
                         size="icon"
                         className="h-8 w-8 lg:hidden"
                         onClick={() => setModalVisibility('showChatPanel', false)}
@@ -159,13 +196,13 @@ export function ChatPanel() {
 
             {/* Input area */}
             <div className="p-4 bg-background border-t">
-                <div className="relative flex items-center gap-2 bg-muted/30 rounded-2xl p-1.5 border border-border/50 focus-within:border-primary/30 focus-within:ring-1 focus-within:ring-primary/10 transition-all">
+                <div className="flex items-stretch gap-0 bg-muted/30 rounded-2xl border border-border/50 focus-within:border-primary/30 focus-within:ring-1 focus-within:ring-primary/10 transition-all overflow-hidden">
                     <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="Ask about your stack..."
                         rows={1}
-                        className="flex-1 bg-transparent border-none px-3 py-2 text-sm focus:outline-none resize-none min-h-[40px] max-h-32 transition-all scrollbar-hide"
+                        className="flex-1 bg-transparent border-none px-4 py-3 text-sm focus:outline-none resize-none min-h-[44px] max-h-32 transition-all scrollbar-hide"
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault();
@@ -173,19 +210,18 @@ export function ChatPanel() {
                             }
                         }}
                     />
-                    <Button 
-                        size="icon"
-                        className={cn(
-                            "h-9 w-9 rounded-xl shadow-md transition-all shrink-0",
-                            input.trim() 
-                                ? "bg-primary text-primary-foreground translate-x-0 opacity-100" 
-                                : "bg-muted text-muted-foreground/30 translate-x-2 opacity-50"
-                        )}
+                    <button
                         onClick={handleSend}
                         disabled={!input.trim() || isChatLoading}
+                        className={cn(
+                            "flex items-center justify-center px-4 transition-all shrink-0 border-l border-border/50",
+                            input.trim() && !isChatLoading
+                                ? "text-primary hover:bg-primary/10 cursor-pointer"
+                                : "text-muted-foreground/30 cursor-not-allowed"
+                        )}
                     >
                         <Send size={16} />
-                    </Button>
+                    </button>
                 </div>
                 <div className="mt-3 flex items-center justify-between px-1">
                     <div className="flex items-center gap-2">
