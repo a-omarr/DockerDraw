@@ -20,7 +20,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import type { AuditFinding, Service } from '@/types';
+import type { AuditFinding } from '@/types';
 
 export function AuditModal() {
     const {
