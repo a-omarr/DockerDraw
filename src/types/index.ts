@@ -175,3 +175,15 @@ export interface TourStep {
     description: string;
     position: 'top' | 'bottom' | 'left' | 'right';
 }
+
+export interface AuditFinding {
+    id: string;
+    title: string;
+    message: string;
+    severity: 'critical' | 'warning' | 'info';
+    category: 'Security' | 'Best Practice' | 'Performance';
+    serviceId?: string;
+    fixAvailable: boolean;
+    fixDescription?: string;
+    fixData?: Partial<Service>;
+}

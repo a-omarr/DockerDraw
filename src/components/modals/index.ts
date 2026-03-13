@@ -6,3 +6,4 @@ export * from './ImportModal';
 export * from './TemplateGallery';
 export * from './DownloadSuccessModal';
 export * from './OnboardingTour';
+export * from './AuditModal';

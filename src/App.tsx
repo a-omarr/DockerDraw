@@ -11,6 +11,7 @@ import {
   DownloadSuccessModal,
   AddServiceModal,
   TemplateGallery,
+  AuditModal,
 } from './components/modals';
 import { CommandPalette } from './components/CommandPalette';
 import { StatusBar } from './components/StatusBar';
@@ -201,6 +202,7 @@ export default function App() {
       <AddServiceModal open={showAddServiceModal} onOpenChange={(show) => setModalVisibility('showAddServiceModal', show)} />
       {showSuccessModal && <DownloadSuccessModal />}
       <CommandPalette />
+      <AuditModal />
       <AIAssistant />
       <Analytics />
     </div>
