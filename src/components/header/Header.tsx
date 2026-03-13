@@ -89,13 +89,13 @@ export function Header() {
                 <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary shrink-0">
                     <Layers size={16} className="text-primary-foreground" />
                 </div>
-                <div className="flex items-baseline gap-2 min-w-0">
+                <h1 className="flex items-baseline gap-2 min-w-0">
                     <span className="text-lg font-bold tracking-tight hidden sm:inline">DockerDraw</span>
                     <span className="text-lg font-bold tracking-tight sm:hidden">DD</span>
                     <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest hidden md:inline">
                         v1.0
                     </span>
-                </div>
+                </h1>
 
                 {/* Project name */}
                 <div className="ml-2 sm:ml-4 pl-2 sm:pl-4 border-l min-w-0">
